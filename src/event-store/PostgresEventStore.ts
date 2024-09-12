@@ -19,15 +19,15 @@ export class PostgresEventStore implements EventStore {
   ) {}
 
   aggregateStream<State, EventType extends Event>(
-    streamName: string,
-    options: AggregateStreamOptions<State, EventType, bigint>,
+    _streamName: string,
+    _options: AggregateStreamOptions<State, EventType, bigint>,
   ): Promise<AggregateStreamResult<State, bigint>> {
     throw new Error('Method not implemented.');
   }
 
   async readStream<EventType extends Event>(
     streamName: string,
-    options?: ReadStreamOptions<bigint>,
+    _options?: ReadStreamOptions<bigint>,
   ): Promise<{ currentStreamVersion: bigint; events: EventType[] }> {
     const res = await this.ds
       .createQueryBuilder(EventEntity, 'event')
