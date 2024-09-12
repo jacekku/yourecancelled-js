@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16.3
+    restart: always
+    ports:
+      - 25432:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: eventstore
+      POSTGRES_DB: eventstore
