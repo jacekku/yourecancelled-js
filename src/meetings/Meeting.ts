@@ -1,4 +1,5 @@
-import { randomUUID, UUID } from 'crypto';
+import { DefaultRecord, Flavour } from '@event-driven-io/emmett';
+import { randomUUID } from 'crypto';
 import { MeetingEvent } from './Meeting.events';
 import {
   AddParticipant,
@@ -13,11 +14,60 @@ export type MeetingResult = {
   meeting?: Meeting;
 };
 
-export type MeetingError = unknown;
+export type DomainError<
+  ErrorType extends string = string,
+  ErrorData extends DefaultRecord = DefaultRecord,
+> = Flavour<
+  Readonly<{
+    type: ErrorType;
+    data: Readonly<ErrorData>;
+  }>,
+  'Error'
+>;
+
+export type ActorId = Flavour<string, 'MeetingActorId'>;
+export type MeetingId = Flavour<string, 'MeetingId'>;
+
+type ActorNotCreator = DomainError<
+  'ActorNotCreator',
+  {
+    actorId: ActorId;
+    meetingId: MeetingId;
+  }
+>;
+
+type ParticipantAlreadyAdded = DomainError<
+  'ParticipantAlreadyAdded',
+  {
+    actorId: ActorId;
+    participantId: ActorId;
+    meetingId: MeetingId;
+  }
+>;
+
+type MeetingCancelledError = DomainError<
+  'MeetingCancelled',
+  {
+    actorId: ActorId;
+    meetingId: MeetingId;
+  }
+>;
+
+export type MeetingError =
+  | ActorNotCreator
+  | ParticipantAlreadyAdded
+  | MeetingCancelledError;
+
+export enum MeetingStatus {
+  Active,
+  Cancelled,
+}
 
 export class Meeting {
-  protected creator: UUID;
-  protected id: UUID;
+  protected creator: ActorId;
+  protected id: MeetingId;
+  protected status: MeetingStatus;
+
   cancelledParticipants = [];
   participants = [];
 
@@ -83,6 +133,31 @@ export class Meeting {
 
   private addParticipant(command: AddParticipant): MeetingResult {
     const { actorId, participantId } = command.data;
+    const meetingId = this.id;
+
+    const errors: MeetingError[] = [];
+    if (actorId !== this.creator) {
+      errors.push({
+        type: 'ActorNotCreator',
+        data: { actorId, meetingId },
+      });
+    }
+    if (this.participants.includes(participantId)) {
+      errors.push({
+        type: 'ParticipantAlreadyAdded',
+        data: { actorId, meetingId, participantId },
+      });
+    }
+    if (this.status === MeetingStatus.Cancelled) {
+      errors.push({
+        type: 'MeetingCancelled',
+        data: { actorId, meetingId },
+      });
+    }
+
+    if (errors.length > 0) {
+      return this.result({ errors });
+    }
 
     const events: MeetingEvent[] = [
       {
@@ -104,6 +179,7 @@ export class Meeting {
   private applyEvent(event: MeetingEvent) {
     switch (event.type) {
       case 'MeetingCreated': {
+        this.status = MeetingStatus.Active;
         this.creator = event.data.creatorId;
         this.id = event.data.meetingId;
         return this;
@@ -115,6 +191,9 @@ export class Meeting {
       case 'AttendanceCancelled': {
         this.cancelledParticipants.push(event.data.actorId);
         return this;
+      }
+      case 'MeetingCancelled': {
+        this.status = MeetingStatus.Cancelled;
       }
       default:
         return this;

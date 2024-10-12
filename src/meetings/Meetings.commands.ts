@@ -1,28 +1,25 @@
 import { Command } from '@event-driven-io/emmett';
-import { UUID } from 'crypto';
+import { ActorId, MeetingId } from './Meeting';
 
 export type CreateMeeting = Command<
   'CreateMeeting',
   {
-    actorId: UUID;
+    actorId: ActorId;
   }
 >;
 
 export type AddParticipant = Command<
   'AddParticipant',
   {
-    actorId: UUID;
-    participantId: UUID;
-    meetingId: UUID;
+    actorId: ActorId;
+    participantId: ActorId;
+    meetingId: MeetingId;
   }
 >;
 
 export type CancelAttendance = Command<
   'CancelAttendance',
-  {
-    actorId: UUID;
-    meetingId: UUID;
-  }
+  { actorId: ActorId; meetingId: MeetingId }
 >;
 
 export type MeetingCommand = CreateMeeting | AddParticipant | CancelAttendance;

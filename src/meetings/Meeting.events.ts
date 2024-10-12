@@ -1,12 +1,12 @@
 import { Event } from '@event-driven-io/emmett';
-import { UUID } from 'crypto';
+import { ActorId, MeetingId } from './Meeting';
 
 export type MeetingCreated = Event<
   'MeetingCreated',
   {
-    actorId: UUID;
-    creatorId: UUID;
-    meetingId: UUID;
+    actorId: ActorId;
+    creatorId: ActorId;
+    meetingId: MeetingId;
     timestamp: number;
   }
 >;
@@ -14,9 +14,9 @@ export type MeetingCreated = Event<
 export type ParticipantAdded = Event<
   'ParticipantAdded',
   {
-    actorId: UUID;
-    participantId: UUID;
-    meetingId: UUID;
+    actorId: ActorId;
+    participantId: ActorId;
+    meetingId: MeetingId;
     timestamp: number;
   }
 >;
@@ -24,8 +24,8 @@ export type ParticipantAdded = Event<
 export type AttendanceCancelled = Event<
   'AttendanceCancelled',
   {
-    actorId: UUID;
-    meetingId: UUID;
+    actorId: ActorId;
+    meetingId: MeetingId;
     timestamp: number;
   }
 >;
@@ -33,7 +33,7 @@ export type AttendanceCancelled = Event<
 export type MeetingCancelled = Event<
   'MeetingCancelled',
   {
-    meetingId: UUID;
+    meetingId: MeetingId;
     timestamp: number;
   }
 >;
