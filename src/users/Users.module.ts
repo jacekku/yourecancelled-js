@@ -6,4 +6,4 @@ import { EventStoreModule } from '../event-store/event-store.module';
   controllers: [],
   providers: [],
 })
-export class MeetingsModule {}
+export class UsersModule {}

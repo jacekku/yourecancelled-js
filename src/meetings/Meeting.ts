@@ -1,5 +1,6 @@
-import { DefaultRecord, Flavour } from '@event-driven-io/emmett';
+import { Flavour } from '@event-driven-io/emmett';
 import { randomUUID } from 'crypto';
+import { DomainError } from '../common/models';
 import { MeetingEvent } from './Meeting.events';
 import {
   AddParticipant,
@@ -13,17 +14,6 @@ export type MeetingResult = {
   errors: MeetingError[];
   meeting?: Meeting;
 };
-
-export type DomainError<
-  ErrorType extends string = string,
-  ErrorData extends DefaultRecord = DefaultRecord,
-> = Flavour<
-  Readonly<{
-    type: ErrorType;
-    data: Readonly<ErrorData>;
-  }>,
-  'Error'
->;
 
 export type ActorId = Flavour<string, 'MeetingActorId'>;
 export type MeetingId = Flavour<string, 'MeetingId'>;
