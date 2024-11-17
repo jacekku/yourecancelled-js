@@ -1,15 +1,16 @@
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS dependencies
 
 ENV NODE_ENV build
 
 WORKDIR /app 
 
-
 COPY package.json /app/
 RUN yarn
-# RUN chown -Rh 777 /app/src
-# RUN chown -Rh 777 /app/dist
 
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+COPY --from=dependencies /app/node_modules /app/node_modules
 COPY ./src /app/src
 COPY ./*.json /app/ 
 
