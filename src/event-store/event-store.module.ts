@@ -3,20 +3,23 @@ import { DataSource } from 'typeorm';
 import { EventStore } from './EventStore';
 import { PostgresEventStore } from './PostgresEventStore';
 import { databaseProvider } from './postgresDatabase.provider';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   providers: [
     {
       provide: DataSource,
-      useFactory: () => {
-        return databaseProvider.initialize();
+      useFactory: (config: ConfigService) => {
+        return databaseProvider(config).initialize();
       },
+      inject: [ConfigService]
     },
     {
       provide: EventStore,
       useClass: PostgresEventStore,
     },
+    PostgresEventStore
   ],
-  exports: [EventStore],
+  exports: [PostgresEventStore],
 })
 export class EventStoreModule {}

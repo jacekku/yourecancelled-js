@@ -22,4 +22,9 @@ export type CancelAttendance = Command<
   { actorId: ActorId; meetingId: MeetingId }
 >;
 
-export type MeetingCommand = CreateMeeting | AddParticipant | CancelAttendance;
+export type ChangeMeetingData = Command<
+  'ChangeMeetingData', 
+  { actorId: ActorId; meetingId: MeetingId; date: Date | undefined; name: string | undefined }
+>
+
+export type MeetingCommand = CreateMeeting | AddParticipant | CancelAttendance | ChangeMeetingData;

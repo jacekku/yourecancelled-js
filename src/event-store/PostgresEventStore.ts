@@ -11,7 +11,9 @@ import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 import { EventEntity } from './Event.entity';
 import { EventStore } from './EventStore';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PostgresEventStore implements EventStore {
   constructor(
     @InjectDataSource()

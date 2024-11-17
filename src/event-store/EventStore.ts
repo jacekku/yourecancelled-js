@@ -7,7 +7,9 @@ import {
   EventStore as EventStoreEmmett,
   ReadStreamOptions,
 } from '@event-driven-io/emmett';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export abstract class EventStore implements EventStoreEmmett {
   abstract aggregateStream<State, EventType extends Event>(
     streamName: string,
