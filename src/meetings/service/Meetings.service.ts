@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostgresEventStore } from 'src/event-store/PostgresEventStore';
+import { PostgresEventStore } from '../../event-store/PostgresEventStore';
 import { CreateEventDto } from '../http/Meetings.dto';
 import { Meeting } from '../Meeting';
 
@@ -24,10 +24,10 @@ export class MeetingsService {
       },
     });
     result.events.push(...nextResult.events);
-    await this.eventStore.appendToStream(
-      result.events.at(0).data.meetingId,
-      result.events,
-    );
+    await this.eventStore.appendToStream(result.events.at(0).data.meetingId, [
+      ...result.events,
+      ...nextResult.events,
+    ]);
     return nextResult.meeting;
   }
 }

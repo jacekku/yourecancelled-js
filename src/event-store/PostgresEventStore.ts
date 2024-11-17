@@ -6,12 +6,12 @@ import {
   Event,
   ReadStreamOptions,
 } from '@event-driven-io/emmett';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 import { EventEntity } from './Event.entity';
 import { EventStore } from './EventStore';
-import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class PostgresEventStore implements EventStore {
@@ -63,8 +63,8 @@ export class PostgresEventStore implements EventStore {
     const latest = Number(dbLatest?.streamPosition ?? 1);
 
     if (
-      options.expectedStreamVersion &&
-      BigInt(latest) !== options.expectedStreamVersion
+      options?.expectedStreamVersion &&
+      BigInt(latest) !== options?.expectedStreamVersion
     ) {
       return {
         nextExpectedStreamVersion: BigInt(latest),
@@ -78,7 +78,7 @@ export class PostgresEventStore implements EventStore {
         .insert()
         .values({
           data: event.data,
-          metadata: event.metadata,
+          metadata: event.metadata || {},
           streamId: streamName,
           messageType: event.type,
 
