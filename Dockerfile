@@ -1,6 +1,6 @@
 FROM node:20-alpine AS dependencies
 
-ENV NODE_ENV build
+ENV NODE_ENV=build
 
 WORKDIR /app 
 
@@ -21,7 +21,7 @@ RUN yarn build
 
 FROM node:20-alpine
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 USER node
 WORKDIR /app
