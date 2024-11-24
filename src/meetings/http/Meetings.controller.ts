@@ -19,6 +19,6 @@ export class MeetingsController {
   @Post()
   async createEvent(@Body() body: CreateEventDto): Promise<EventDto> {
     const result = await this.meetingsService.createEvent(body);
-    return EventDto.from(result);
+    return EventDto.from(result.events);
   }
 }

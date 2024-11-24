@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
 import { CreateEventDto } from '../http/Meetings.dto';
-import { Meeting } from '../Meeting';
+import { Meeting, MeetingResult } from '../Meeting';
 
 @Injectable()
 export class MeetingsService {
   constructor(private readonly eventStore: PostgresEventStore) {}
 
-  public async createEvent(body: CreateEventDto) {
+  public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
     const result = Meeting.new.handle({
       type: 'CreateMeeting',
       data: {
@@ -23,11 +23,15 @@ export class MeetingsService {
         name: body.name,
       },
     });
-    result.events.push(...nextResult.events);
+
     await this.eventStore.appendToStream(result.events.at(0).data.meetingId, [
       ...result.events,
       ...nextResult.events,
     ]);
-    return nextResult.meeting;
+    return {
+      errors: [],
+      events: [...result.events, ...nextResult.events],
+      meeting: nextResult.meeting,
+    };
   }
 }

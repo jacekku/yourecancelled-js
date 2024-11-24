@@ -1,4 +1,5 @@
-import { ActorId, Meeting, MeetingId, MeetingStatus } from '../Meeting';
+import { ActorId, MeetingId } from '../Meeting';
+import { MeetingEvent } from '../Meeting.events';
 
 export class CreateEventDto {
   public userId: string;
@@ -6,32 +7,37 @@ export class CreateEventDto {
   public datetime: Date;
 }
 
-export class EventDto extends Meeting {
+export class EventDto {
   public id: MeetingId;
   public authorId: string;
-  public eventStatus: EventStatusDto;
+  public status: EventStatusDto;
   public date: Date;
   public name: string;
   public participants: ParticipantDto[];
 
-  static from(meeting: Meeting): EventDto | PromiseLike<EventDto> {
-    const am = meeting as any;
-    return {
-      id: am.id,
-      authorId: am.creator,
-      eventStatus: EventDto.statusFrom(am.status),
-      date: am.date,
-      name: am.name,
-      participants: am.participants.map(ParticipantDto.from),
-    } as EventDto;
+  static from(events: MeetingEvent[]): EventDto {
+    return events.reduce<EventDto>(EventDto.evolve, new EventDto());
   }
 
-  static statusFrom(status: MeetingStatus) {
-    switch (status) {
-      case MeetingStatus.Active:
-        return EventStatusDto.ATTENDING;
-      case MeetingStatus.Cancelled:
-        return EventStatusDto.CANCELLED;
+  static evolve(state: EventDto, event: MeetingEvent): EventDto {
+    const { type, data } = event;
+    switch (type) {
+      case 'MeetingCreated':
+        state.id = data.meetingId;
+        state.authorId = data.creatorId;
+        return state;
+      case 'ParticipantAdded':
+        state.participants.push(ParticipantDto.from(data.participantId));
+        return state;
+      case 'AttendanceCancelled':
+        return state;
+      case 'MeetingCancelled':
+        state.status = EventStatusDto.CANCELLED;
+        return state;
+      case 'MeetingDataChanged':
+        state.date = data.date;
+        state.name = data.name;
+        return state;
     }
   }
 }
@@ -39,8 +45,8 @@ export class EventDto extends Meeting {
 export class ParticipantDto {
   userId: ActorId;
 
-  static from(id: ActorId) {
-    return id;
+  static from(id: ActorId): ParticipantDto {
+    return { userId: id };
   }
 }
 
