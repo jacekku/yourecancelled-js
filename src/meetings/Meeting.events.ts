@@ -38,8 +38,20 @@ export type MeetingCancelled = Event<
   }
 >;
 
+export type MeetingDataChanged = Event<
+  'MeetingDataChanged',
+  {
+    actorId: ActorId;
+    meetingId: MeetingId;
+    timestamp: number;
+    name?: string;
+    date?: Date;
+  }
+>;
+
 export type MeetingEvent =
   | MeetingCreated
   | ParticipantAdded
   | AttendanceCancelled
-  | MeetingCancelled;
+  | MeetingCancelled
+  | MeetingDataChanged;

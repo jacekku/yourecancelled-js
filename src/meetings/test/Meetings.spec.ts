@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Meeting, MeetingResult } from '../Meeting';
+import { MeetingDataChanged } from '../Meeting.events';
 import { CreateMeeting } from '../Meetings.commands';
 
 function expectSuccess(result: MeetingResult) {
@@ -117,6 +118,32 @@ describe('Meetings', () => {
 
       expectSuccess(result);
       expect(result.events).toHaveLength(2);
+    });
+  });
+
+  describe('Creator can change Meeting data', () => {
+    test('Meeting name', () => {
+      const { actorId, meetingId, timestamp } = getUUIDs();
+      const meeting = Meeting.new.apply([
+        {
+          type: 'MeetingCreated',
+          data: {
+            actorId,
+            creatorId: actorId,
+            meetingId,
+            timestamp: Date.now(),
+          },
+        },
+      ]);
+
+      const result = meeting.handle({
+        type: 'ChangeMeetingData',
+        data: { actorId, meetingId, name: 'New Name', date: null },
+      });
+      expectSuccess(result);
+      const event = result.events.at(0) as MeetingDataChanged;
+      expect(event.type).toBe('MeetingDataChanged');
+      expect(event.data.name).toBe('New Name');
     });
   });
 

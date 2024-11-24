@@ -5,6 +5,7 @@ import { MeetingEvent } from './Meeting.events';
 import {
   AddParticipant,
   CancelAttendance,
+  ChangeMeetingData,
   CreateMeeting,
   MeetingCommand,
 } from './Meetings.commands';
@@ -49,8 +50,8 @@ export type MeetingError =
   | MeetingCancelledError;
 
 export enum MeetingStatus {
-  Active,
-  Cancelled,
+  Active = 'Active',
+  Cancelled = 'Cancelled',
 }
 
 export class Meeting {
@@ -60,6 +61,8 @@ export class Meeting {
 
   cancelledParticipants = [];
   participants = [];
+  name: string;
+  date: Date;
 
   public static get new() {
     return new Meeting();
@@ -73,6 +76,8 @@ export class Meeting {
         return this.addParticipant(command);
       case 'CancelAttendance':
         return this.cancelAttendance(command);
+      case 'ChangeMeetingData':
+        return this.changeMeetingData(command);
       default:
         return this.result({});
     }
@@ -166,6 +171,25 @@ export class Meeting {
     return this.result({ events });
   }
 
+  private changeMeetingData(command: ChangeMeetingData): MeetingResult {
+    const events: MeetingEvent[] = [
+      {
+        type: 'MeetingDataChanged',
+        data: {
+          name: command.data.name,
+          date: command.data.date,
+          timestamp: Date.now(),
+          actorId: command.data.actorId,
+          meetingId: command.data.meetingId,
+        },
+      },
+    ];
+
+    this.apply(events);
+
+    return this.result({ events });
+  }
+
   private applyEvent(event: MeetingEvent) {
     switch (event.type) {
       case 'MeetingCreated': {
@@ -184,6 +208,11 @@ export class Meeting {
       }
       case 'MeetingCancelled': {
         this.status = MeetingStatus.Cancelled;
+        return this;
+      }
+      case 'MeetingDataChanged': {
+        this.name = event.data.name;
+        this.date = event.data.date;
       }
       default:
         return this;
