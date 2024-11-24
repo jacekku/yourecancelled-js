@@ -5,6 +5,7 @@ ENV NODE_ENV build
 WORKDIR /app 
 
 COPY package.json /app/
+COPY yarn.lock /app/
 RUN yarn
 
 FROM node:20-alpine AS builder
