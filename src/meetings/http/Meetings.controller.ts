@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { MeetingId } from '../Meeting';
 import { MeetingsService } from '../service/Meetings.service';
 import { CreateEventDto, EventDto } from './Meetings.dto';
 
@@ -12,8 +13,8 @@ export class MeetingsController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<EventDto> {
-    return ('getById' + id) as any;
+  async getById(@Param('id') id: MeetingId): Promise<EventDto> {
+    return this.meetingsService.getById(id);
   }
 
   @Post()
