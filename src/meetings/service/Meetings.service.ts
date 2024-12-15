@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
-import { CreateEventDto } from '../http/Meetings.dto';
-import { Meeting, MeetingResult } from '../Meeting';
+import { CreateEventDto, EventDto } from '../http/Meetings.dto';
+import { Meeting, MeetingId, MeetingResult } from '../Meeting';
 
 @Injectable()
 export class MeetingsService {
-  constructor(private readonly eventStore: PostgresEventStore) {}
+  private readonly events: Map<MeetingId, EventDto>;
+
+  constructor(private readonly eventStore: PostgresEventStore) {
+    this.events = new Map();
+  }
 
   public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
     const result = Meeting.new.handle({
@@ -24,14 +28,24 @@ export class MeetingsService {
       },
     });
 
-    await this.eventStore.appendToStream(result.events.at(0).data.meetingId, [
-      ...result.events,
-      ...nextResult.events,
-    ]);
+    const allEvents = [...result.events, ...nextResult.events];
+
+    await this.eventStore.appendToStream(
+      result.events.at(0).data.meetingId,
+      allEvents,
+    );
+
+    const event = EventDto.from(allEvents);
+    this.events.set(event.id, event);
+
     return {
       errors: [],
-      events: [...result.events, ...nextResult.events],
+      events: allEvents,
       meeting: nextResult.meeting,
     };
+  }
+
+  public async getById(id: MeetingId): Promise<EventDto> {
+    return this.events.get(id);
   }
 }

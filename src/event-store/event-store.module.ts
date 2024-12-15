@@ -12,7 +12,7 @@ import { databaseProvider } from './postgresDatabase.provider';
       useFactory: async (config: ConfigService) => {
         const provider = databaseProvider(config);
         await provider.initialize();
-        provider.runMigrations();
+        await provider.runMigrations();
         return provider;
       },
       inject: [ConfigService],
