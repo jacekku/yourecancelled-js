@@ -15,7 +15,7 @@ COPY --from=dependencies /app/node_modules /app/node_modules
 COPY ./src /app/src
 COPY ./*.json /app/ 
 
-RUN yarn build
+RUN npm run build
 
 # ---
 
