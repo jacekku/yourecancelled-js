@@ -26,4 +26,8 @@ export abstract class EventStore implements EventStoreEmmett {
     events: EventType[],
     options?: AppendToStreamOptions<bigint>,
   ): Promise<AppendToStreamResult<bigint>>;
+
+  abstract readAllEvents<EventType extends Event>(
+    options?: ReadStreamOptions<bigint>,
+  ): Promise<{ events: EventType[] }>;
 }

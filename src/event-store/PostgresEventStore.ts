@@ -20,6 +20,25 @@ export class PostgresEventStore implements EventStore {
     private readonly ds: DataSource,
   ) {}
 
+  async readAllEvents<EventType extends Event>(
+    _options?: ReadStreamOptions<bigint>,
+  ): Promise<{ events: EventType[] }> {
+    const res = await this.ds
+      .createQueryBuilder(EventEntity, 'event')
+      .orderBy('global_position')
+      .getMany();
+    return {
+      events: res.map(
+        (event) =>
+          ({
+            data: event.data,
+            metadata: event.metadata,
+            type: event.messageType,
+          }) as EventType,
+      ),
+    };
+  }
+
   aggregateStream<State, EventType extends Event>(
     _streamName: string,
     _options: AggregateStreamOptions<State, EventType, bigint>,
