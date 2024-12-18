@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
 import { CreateEventDto, EventDto } from '../http/Meetings.dto';
-import { Meeting, MeetingId, MeetingResult } from '../Meeting';
+import { ActorId, Meeting, MeetingId, MeetingResult } from '../Meeting';
 
 @Injectable()
 export class MeetingsService {
   private readonly events: Map<MeetingId, EventDto>;
+  private readonly userEvents: Map<ActorId, EventDto[]>;
 
   constructor(private readonly eventStore: PostgresEventStore) {
     this.events = new Map();
+    this.userEvents = new Map();
   }
 
   public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
@@ -37,6 +39,9 @@ export class MeetingsService {
 
     const event = EventDto.from(allEvents);
     this.events.set(event.id, event);
+    const existing = this.userEvents.get(event.authorId) || [];
+    existing.push(event);
+    this.userEvents.set(event.authorId, existing);
 
     return {
       errors: [],
@@ -47,5 +52,9 @@ export class MeetingsService {
 
   public async getById(id: MeetingId): Promise<EventDto> {
     return this.events.get(id);
+  }
+
+  public async getListFor(userId: ActorId): Promise<EventDto[]> {
+    return this.userEvents.get(userId) || [];
   }
 }

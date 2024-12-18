@@ -37,8 +37,8 @@ describe('Events (e2e)', () => {
   });
 
   afterEach(async () => {
-    await app.close();
     await postgresContainer.stop();
+    await app.close();
   });
 
   it('Create Event', () => {
@@ -66,5 +66,17 @@ describe('Events (e2e)', () => {
 
     const event = await client.getById(result.body.id);
     expect(event.body.id).toBe(result.body.id);
+  });
+
+  it('Get for user', async () => {
+    await client.createEvent({
+      datetime: new Date('2022-09-01T20:20:20'),
+      userId: '1',
+      name: '2',
+    });
+
+    const events = await client.getListForUser('1');
+    expect(events.body).toHaveLength(1);
+    expect(events.body.at(0).name).toBe('2');
   });
 });

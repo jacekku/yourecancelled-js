@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { MeetingId } from '../Meeting';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ActorId, MeetingId } from '../Meeting';
 import { MeetingsService } from '../service/Meetings.service';
 import { CreateEventDto, EventDto } from './Meetings.dto';
 
@@ -8,8 +8,8 @@ export class MeetingsController {
   constructor(private readonly meetingsService: MeetingsService) {}
 
   @Get()
-  async getList(): Promise<EventDto[]> {
-    return 'Hello, world!' as any;
+  async getList(@Query('userId') userId: ActorId): Promise<EventDto[]> {
+    return this.meetingsService.getListFor(userId);
   }
 
   @Get(':id')
