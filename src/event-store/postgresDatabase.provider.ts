@@ -7,9 +7,9 @@ export const databaseProvider = (config: ConfigService) =>
     type: 'postgres',
     host: config.get('DB_HOST') || 'localhost',
     port: config.get('DB_PORT') || 25432,
-    username: 'eventstore',
+    username: config.get('DB_USER') || 'eventstore',
     password: config.get('DB_PASSWORD'),
-    database: 'eventstore',
+    database: config.get('DB_DB') || 'eventstore',
     entities: [EventEntity],
     migrations: [__dirname + '/../**/migrations/*{.ts,.js}'],
   });
