@@ -5,8 +5,8 @@ ENV NODE_ENV=build
 WORKDIR /app 
 
 COPY package.json /app/
-COPY yarn.lock /app/
-RUN yarn
+COPY package-lock.json /app/
+RUN npm install
 
 FROM node:20-alpine AS builder
 
