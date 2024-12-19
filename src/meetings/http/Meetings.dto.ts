@@ -25,6 +25,7 @@ export class EventDto {
       case 'MeetingCreated':
         state.id = data.meetingId;
         state.authorId = data.creatorId;
+        state.status = EventStatusDto.ATTENDING;
         return state;
       case 'ParticipantAdded':
         state.participants.push(ParticipantDto.from(data.participantId));
