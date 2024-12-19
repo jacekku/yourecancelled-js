@@ -14,6 +14,6 @@ export class MeetingsClient {
   }
 
   public getListForUser(userId: string) {
-    return request(this.app.getHttpServer).get('/events?userId=' + userId);
+    return request(this.app.getHttpServer()).get('/events?userId=' + userId);
   }
 }

@@ -7,7 +7,7 @@ import { MeetingEvent } from '../Meeting.events';
 @Injectable()
 export class MeetingsService {
   private readonly events: Map<MeetingId, EventDto>;
-  private readonly userEvents: Map<ActorId, EventDto[]>;
+  private readonly userEvents: Map<ActorId, Set<EventDto>>;
 
   constructor(private readonly eventStore: PostgresEventStore) {
     this.events = new Map();
@@ -69,13 +69,13 @@ export class MeetingsService {
   }
 
   public async getListFor(userId: ActorId): Promise<EventDto[]> {
-    return this.userEvents.get(userId) || [];
+    return Array.from(this.userEvents.get(userId) || new Set());
   }
 
   private addToReadModel(event: EventDto) {
     this.events.set(event.id, event);
-    const existing = this.userEvents.get(event.authorId) || [];
-    existing.push(event);
+    const existing = this.userEvents.get(event.authorId) || new Set();
+    existing.add(event);
     this.userEvents.set(event.authorId, existing);
   }
 }
