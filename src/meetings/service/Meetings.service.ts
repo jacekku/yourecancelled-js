@@ -1,34 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
-import { CreateEventDto, EventDto } from '../http/Meetings.dto';
-import { ActorId, Meeting, MeetingId, MeetingResult } from '../Meeting';
-import { MeetingEvent } from '../Meeting.events';
+import { CreateEventDto } from '../http/Meetings.dto';
+import { Meeting, MeetingResult } from '../Meeting';
+import { MeetingReadModel } from './Meetings.readmodel';
 
 @Injectable()
 export class MeetingsService {
-  private readonly events: Map<MeetingId, EventDto>;
-  private readonly userEvents: Map<ActorId, Set<EventDto>>;
-
-  constructor(private readonly eventStore: PostgresEventStore) {
-    this.events = new Map();
-    this.userEvents = new Map();
-
-    this.reconstruct();
-  }
-
-  private async reconstruct() {
-    // change this for ReadModel in DB
-    const allEvents = await this.eventStore.readAllEvents<MeetingEvent>();
-    allEvents.events.forEach((event) => {
-      let eventDto = this.events.get(event.data.meetingId);
-      if (!eventDto) {
-        eventDto = EventDto.from([event]);
-      } else {
-        eventDto = EventDto.evolve(eventDto, event);
-      }
-      this.addToReadModel(eventDto);
-    });
-  }
+  constructor(
+    private readonly eventStore: PostgresEventStore,
+    private readonly readModel: MeetingReadModel,
+  ) {}
 
   public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
     const result = Meeting.new.handle({
@@ -54,28 +35,12 @@ export class MeetingsService {
       allEvents,
     );
 
-    const event = EventDto.from(allEvents);
-    this.addToReadModel(event);
+    this.readModel.processEvents(allEvents);
 
     return {
       errors: [],
       events: allEvents,
       meeting: nextResult.meeting,
     };
-  }
-
-  public async getById(id: MeetingId): Promise<EventDto> {
-    return this.events.get(id);
-  }
-
-  public async getListFor(userId: ActorId): Promise<EventDto[]> {
-    return Array.from(this.userEvents.get(userId) || new Set());
-  }
-
-  private addToReadModel(event: EventDto) {
-    this.events.set(event.id, event);
-    const existing = this.userEvents.get(event.authorId) || new Set();
-    existing.add(event);
-    this.userEvents.set(event.authorId, existing);
   }
 }
