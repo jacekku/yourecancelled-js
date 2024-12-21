@@ -1,9 +1,14 @@
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
 
 export class CreateEventDto {
+  @IsString()
+  @IsNotEmpty()
   public userId: string;
+  @IsNotEmpty()
   public name: string;
+  @IsDateString()
   public datetime: Date;
 }
 
