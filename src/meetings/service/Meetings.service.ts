@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
-import { CreateEventDto } from '../http/Meetings.dto';
-import { Meeting, MeetingResult } from '../Meeting';
+import { AddParticipantDto, CreateEventDto } from '../http/Meetings.dto';
+import { ActorId, Meeting, MeetingId, MeetingResult } from '../Meeting';
+import { MeetingEvent } from '../Meeting.events';
 import { MeetingReadModel } from './Meetings.readmodel';
 
 @Injectable()
@@ -42,5 +43,27 @@ export class MeetingsService {
       events: allEvents,
       meeting: nextResult.meeting,
     };
+  }
+
+  public async addParticipant(
+    meetingId: MeetingId,
+    body: AddParticipantDto,
+    actorId: ActorId,
+  ): Promise<MeetingResult> {
+    const events = (await this.eventStore.readStream<MeetingEvent>(meetingId))
+      .events;
+    const meeting = Meeting.new.apply(events);
+
+    const result = meeting.handle({
+      type: 'AddParticipant',
+      data: {
+        actorId,
+        meetingId,
+        participantId: body.userId,
+      },
+    });
+
+    result.events = [...events, ...result.events];
+    return result;
   }
 }

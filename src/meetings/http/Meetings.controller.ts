@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingReadModel } from '../service/Meetings.readmodel';
 import { MeetingsService } from '../service/Meetings.service';
-import { CreateEventDto, EventDto } from './Meetings.dto';
+import { AddParticipantDto, CreateEventDto, EventDto } from './Meetings.dto';
 
 @Controller('events')
 export class MeetingsController {
@@ -24,6 +24,16 @@ export class MeetingsController {
   @Post()
   async createEvent(@Body() body: CreateEventDto): Promise<EventDto> {
     const result = await this.meetingsService.createEvent(body);
+    return EventDto.from(result.events);
+  }
+
+  @Post(':id/participants')
+  async addParticipant(
+    @Body() body: AddParticipantDto,
+    @Param('id') id: MeetingId,
+    @Query('userId') actorId: ActorId,
+  ): Promise<EventDto> {
+    const result = await this.meetingsService.addParticipant(id, body, actorId);
     return EventDto.from(result.events);
   }
 }

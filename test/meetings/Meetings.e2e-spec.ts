@@ -79,4 +79,18 @@ describe('Events (e2e)', () => {
     expect(events.body).toHaveLength(1);
     expect(events.body.at(0).name).toBe('2');
   });
+
+  it('Add Participant', async () => {
+    const event = (
+      await client.createEvent({
+        datetime: new Date('2022-09-01T20:20:20'),
+        userId: '1',
+        name: '2',
+      })
+    ).body;
+
+    const result = (await client.addParticipant(event.id, '2', '1')).body;
+
+    expect(result.participants).toContainEqual({ userId: '2' });
+  });
 });

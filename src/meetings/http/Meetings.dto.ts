@@ -12,6 +12,12 @@ export class CreateEventDto {
   public datetime: Date;
 }
 
+export class AddParticipantDto {
+  @IsString()
+  @IsNotEmpty()
+  public userId: ActorId;
+}
+
 export class EventDto {
   public id: MeetingId;
   public authorId: string;
