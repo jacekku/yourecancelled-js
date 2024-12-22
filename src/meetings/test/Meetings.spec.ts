@@ -139,7 +139,7 @@ describe('Meetings', () => {
 
   describe('Creator can change Meeting data', () => {
     test('Meeting name', () => {
-      const { actorId, meetingId, timestamp } = getUUIDs();
+      const { actorId, meetingId } = getUUIDs();
       const meeting = Meeting.new.apply([
         {
           type: 'MeetingCreated',
