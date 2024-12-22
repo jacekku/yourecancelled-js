@@ -44,7 +44,16 @@ type MeetingCancelledError = DomainError<
   }
 >;
 
+type ValueIsEmpty = DomainError<
+  'ValueIsEmpty',
+  {
+    value: any;
+    name: string;
+  }
+>;
+
 export type MeetingError =
+  | ValueIsEmpty
   | ActorNotCreator
   | ParticipantAlreadyAdded
   | MeetingCancelledError;
@@ -131,6 +140,12 @@ export class Meeting {
     const meetingId = this.id;
 
     const errors: MeetingError[] = [];
+    if (!participantId) {
+      errors.push({
+        type: 'ValueIsEmpty',
+        data: { name: 'participantId', value: participantId },
+      });
+    }
     if (actorId !== this.creator) {
       errors.push({
         type: 'ActorNotCreator',

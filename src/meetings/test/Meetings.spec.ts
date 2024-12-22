@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID, UUID } from 'crypto';
 import { Meeting, MeetingResult } from '../Meeting';
 import { MeetingDataChanged } from '../Meeting.events';
 import { CreateMeeting } from '../Meetings.commands';
@@ -13,13 +13,29 @@ function expectError(result: MeetingResult) {
   expect(result.events).toHaveLength(0);
 }
 
-function getUUIDs() {
+type UUIDS = {
+  actorId?: UUID;
+  meetingId?: UUID;
+  participantId?: UUID;
+  timestamp?: number;
+};
+
+function getUUIDs(): UUIDS {
   return {
     actorId: randomUUID(),
     meetingId: randomUUID(),
     participantId: randomUUID(),
     timestamp: Date.now(),
   };
+}
+
+function meetingFromUUIDS({ actorId, meetingId, timestamp }: UUIDS): Meeting {
+  return Meeting.new.apply([
+    {
+      type: 'MeetingCreated',
+      data: { actorId, creatorId: actorId, meetingId, timestamp },
+    },
+  ]);
 }
 
 describe('Meetings', () => {
@@ -211,6 +227,31 @@ describe('Meetings', () => {
       });
 
       expectError(result);
+    });
+
+    test('Participant cannot be empty', () => {
+      const { actorId, meetingId, timestamp } = getUUIDs();
+
+      const meeting = meetingFromUUIDS({ actorId, meetingId, timestamp });
+
+      expectError(
+        meeting.handle({
+          type: 'AddParticipant',
+          data: { actorId, meetingId, participantId: null },
+        }),
+      );
+      expectError(
+        meeting.handle({
+          type: 'AddParticipant',
+          data: { actorId, meetingId, participantId: undefined },
+        }),
+      );
+      expectError(
+        meeting.handle({
+          type: 'AddParticipant',
+          data: { actorId, meetingId, participantId: '' },
+        }),
+      );
     });
   });
 });
