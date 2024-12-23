@@ -8,5 +8,6 @@ import { MeetingsService } from './service/Meetings.service';
   imports: [EventStoreModule],
   controllers: [MeetingsController],
   providers: [MeetingsService, MeetingReadModel],
+  exports: [MeetingsService, MeetingReadModel]
 })
-export class MeetingsModule {}
+export class MeetingsModule { }
