@@ -1,29 +1,61 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
+import { ApiProperty } from '@nestjs/swagger';
+
+export enum ParticipantStatusDto {
+  ATTENDING = 'ATTENDING',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum EventStatusDto {
+  EMPTY = 'EMPTY',
+  ATTENDING = 'ATTENDING',
+  CANCELLED = 'CANCELLED',
+}
 
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   public userId: string;
   @IsNotEmpty()
+  @ApiProperty()
   public name: string;
   @IsDateString()
+  @ApiProperty()
   public datetime: Date;
 }
 
 export class AddParticipantDto {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   public userId: ActorId;
 }
 
+export class ParticipantDto {
+  @ApiProperty()
+  userId: ActorId;
+
+  static from(id: ActorId): ParticipantDto {
+    return { userId: id };
+  }
+}
+
+
 export class EventDto {
+  @ApiProperty()
   public id: MeetingId;
+  @ApiProperty()
   public authorId: string;
+  @ApiProperty({ enum: EventStatusDto })
   public status: EventStatusDto;
+  @ApiProperty()
   public date: Date;
+  @ApiProperty()
   public name: string;
+  @ApiProperty({ isArray: true, type: ParticipantDto })
   public participants: ParticipantDto[];
 
   static from(events: MeetingEvent[]): EventDto {
@@ -55,23 +87,4 @@ export class EventDto {
         return state;
     }
   }
-}
-
-export class ParticipantDto {
-  userId: ActorId;
-
-  static from(id: ActorId): ParticipantDto {
-    return { userId: id };
-  }
-}
-
-export enum ParticipantStatusDto {
-  ATTENDING = 'ATTENDING',
-  CANCELLED = 'CANCELLED',
-}
-
-export enum EventStatusDto {
-  EMPTY = 'EMPTY',
-  ATTENDING = 'ATTENDING',
-  CANCELLED = 'CANCELLED',
 }

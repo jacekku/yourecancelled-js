@@ -79,7 +79,7 @@ export class PostgresEventStore implements EventStore {
       .where('stream_id=:streamName', { streamName })
       .getOne();
 
-    const latest = Number(dbLatest?.streamPosition ?? 1);
+    const latest = Number(dbLatest?.streamPosition ?? 0);
 
     if (
       options?.expectedStreamVersion &&
