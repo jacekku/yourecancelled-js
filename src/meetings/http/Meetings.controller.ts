@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ActorId, MeetingId, MeetingResult } from '../Meeting';
 import { MeetingReadModel } from '../service/Meetings.readmodel';
 import { MeetingsService } from '../service/Meetings.service';
-import { AddParticipantDto, CreateEventDto, EventDto } from './Meetings.dto';
+import { AddParticipantDto, ChangeEventDataDto, CreateEventDto, EventDto } from './Meetings.dto';
 import { ApiBody, ApiResponse } from '@nestjs/swagger';
 
 @Controller('events')
@@ -42,6 +42,18 @@ export class MeetingsController {
   ): Promise<EventDto> {
     const result = await this.meetingsService.addParticipant(id, body, actorId);
     return this.handleResult(result)
+  }
+
+  @Put(':id')
+  @ApiResponse({ status: 200, type: EventDto })
+  @ApiResponse({ status: 400 })
+  async modifyEvent(
+    @Body() body: ChangeEventDataDto,
+    @Param('id') id: MeetingId,
+    @Query('userId') actorId: ActorId
+  ) {
+    const result = await this.meetingsService.modifyEvent(id, body, actorId);
+    return this.handleResult(result);
   }
 
   private handleResult(result: MeetingResult): EventDto {

@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
-import { AddParticipantDto, CreateEventDto } from '../http/Meetings.dto';
+import { AddParticipantDto, ChangeEventDataDto, CreateEventDto } from '../http/Meetings.dto';
 import { ActorId, Meeting, MeetingId, MeetingResult } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
 import { MeetingReadModel } from './Meetings.readmodel';
 
 @Injectable()
 export class MeetingsService {
+
   constructor(
     private readonly eventStore: PostgresEventStore,
     private readonly readModel: MeetingReadModel,
-  ) {}
+  ) { }
 
   public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
     const result = Meeting.new.handle({
@@ -62,6 +63,44 @@ export class MeetingsService {
         participantId: body.userId,
       },
     });
+
+
+    if (!result.errors.length) {
+      await this.eventStore.appendToStream(
+        result.events.at(0).data.meetingId,
+        result.events,
+      );
+
+      this.readModel.processEvents(result.events);
+    }
+
+    result.events = [...events, ...result.events];
+    return result;
+  }
+
+  public async modifyEvent(meetingId: MeetingId, body: ChangeEventDataDto, actorId: ActorId) {
+    const events = (await this.eventStore.readStream<MeetingEvent>(meetingId))
+      .events;
+    const meeting = Meeting.new.apply(events);
+
+    const result = meeting.handle({
+      type: 'ChangeMeetingData',
+      data: {
+        actorId,
+        meetingId,
+        date: body.datetime,
+        name: body.name
+      },
+    });
+
+    if (!result.errors.length) {
+      await this.eventStore.appendToStream(
+        result.events.at(0).data.meetingId,
+        result.events,
+      );
+
+      this.readModel.processEvents(result.events);
+    }
 
     result.events = [...events, ...result.events];
     return result;

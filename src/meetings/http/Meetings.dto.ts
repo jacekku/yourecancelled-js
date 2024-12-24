@@ -43,6 +43,15 @@ export class ParticipantDto {
   }
 }
 
+export class ChangeEventDataDto {
+  @ApiProperty()
+  @IsDateString()
+  datetime?: Date
+
+  @ApiProperty()
+  @IsString()
+  name?: string
+}
 
 export class EventDto {
   @ApiProperty()

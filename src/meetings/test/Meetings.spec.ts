@@ -160,6 +160,32 @@ describe('Meetings', () => {
       const event = result.events.at(0) as MeetingDataChanged;
       expect(event.type).toBe('MeetingDataChanged');
       expect(event.data.name).toBe('New Name');
+      expect(event.data.date).not.toBeNull();
+    });
+    test('Meeting date', () => {
+      const { actorId, meetingId } = getUUIDs();
+      const meeting = Meeting.new.apply([
+        {
+          type: 'MeetingCreated',
+          data: {
+            actorId,
+            creatorId: actorId,
+            meetingId,
+            timestamp: Date.now(),
+          },
+        },
+      ]);
+
+      const expectedDate = new Date()
+      const result = meeting.handle({
+        type: 'ChangeMeetingData',
+        data: { actorId, meetingId, name: null, date: expectedDate },
+      });
+      expectSuccess(result);
+      const event = result.events.at(0) as MeetingDataChanged;
+      expect(event.type).toBe('MeetingDataChanged');
+      expect(event.data.date).toBe(expectedDate)
+      expect(event.data.name).not.toBeNull();
     });
   });
 

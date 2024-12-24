@@ -187,12 +187,15 @@ export class Meeting {
   }
 
   private changeMeetingData(command: ChangeMeetingData): MeetingResult {
+    const newName = command.data.name || this.name;
+    const newDate = command.data.date || this.date;
+
     const events: MeetingEvent[] = [
       {
         type: 'MeetingDataChanged',
         data: {
-          name: command.data.name,
-          date: command.data.date,
+          name: newName,
+          date: newDate,
           timestamp: Date.now(),
           actorId: command.data.actorId,
           meetingId: command.data.meetingId,
