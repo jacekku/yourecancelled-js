@@ -66,17 +66,7 @@ export class MeetingsService {
     });
 
 
-    if (!result.errors.length) {
-      await this.eventStore.appendToStream(
-        result.events.at(0).data.meetingId,
-        result.events,
-      );
-
-      this.readModel.processEvents(result.events);
-    }
-
-    result.events = [...events, ...result.events];
-    return result;
+    return this.processResult(result, events);
   }
 
   async removeParticipant(id: MeetingId, participantId: ActorId, actorId: ActorId) {
@@ -84,16 +74,8 @@ export class MeetingsService {
     const meeting = Meeting.new.apply(events);
 
     const result = meeting.handle({ type: 'RemoveParticipant', data: { actorId, participantId } })
-    if (!result.errors.length) {
-      await this.eventStore.appendToStream(
-        result.events.at(0).data.meetingId,
-        result.events,
-      );
 
-      this.readModel.processEvents(result.events);
-    }
-    result.events = [...events, ...result.events]
-    return result
+    return this.processResult(result, events);
   }
 
   public async modifyEvent(meetingId: MeetingId, body: ChangeEventDataDto, actorId: ActorId) {
@@ -111,6 +93,10 @@ export class MeetingsService {
       },
     });
 
+    return this.processResult(result, events);
+  }
+
+  private async processResult(result: MeetingResult, events: MeetingEvent[]): Promise<MeetingResult> {
     if (!result.errors.length) {
       await this.eventStore.appendToStream(
         result.events.at(0).data.meetingId,

@@ -4,7 +4,7 @@ import * as Mustache from 'mustache'
 import { ActorId, MeetingId } from "../meetings/Meeting";
 import { MeetingReadModel } from "../meetings/service/Meetings.readmodel";
 import { MeetingsService } from "../meetings/service/Meetings.service";
-import { AddParticipantDto, EventDto } from "src/meetings/http/Meetings.dto";
+import { AddParticipantDto, EventDto } from "../meetings/http/Meetings.dto";
 
 @Controller("/site")
 export class SiteController {
