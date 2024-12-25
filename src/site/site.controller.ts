@@ -1,23 +1,20 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, Req, Res } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req, Res } from "@nestjs/common";
 import { Request, Response } from "express";
 import * as Mustache from 'mustache'
-import { MeetingId } from "../meetings/Meeting";
+import { ActorId, MeetingId } from "../meetings/Meeting";
 import { MeetingReadModel } from "../meetings/service/Meetings.readmodel";
 import { MeetingsService } from "../meetings/service/Meetings.service";
-import { EventDto } from "src/meetings/http/Meetings.dto";
+import { AddParticipantDto, EventDto } from "src/meetings/http/Meetings.dto";
 
 @Controller("/site")
 export class SiteController {
 
     constructor(private readonly readModel: MeetingReadModel, private readonly writeModel: MeetingsService) { }
 
-    private EVENT_LINE = '<li>{{date}} | {{name}} | {{status}} | {{id}} | <button hx-get="site/events/{{id}}/edit" hx-target="closest li">Edit</button></li>'
-
-    @Get()
-    testGet(@Res({ passthrough: true }) res: Response) {
-        res.cookie('userId', "1")
-        return "<div><h1>yippiee</h1><title>New Title</title></div>"
-    }
+    private EVENT_LINE = `<li>{{date}} | {{name}} | {{status}} |{{#participants}} {{userId}} {{/participants}} | {{id}} |
+     <button hx-get="site/events/{{id}}/edit" hx-target="closest li">Edit</button>
+     <button hx-get="site/events/{{id}}/participants/edit" hx-target="closest li">Edit Participants</button>
+     </li>`;
 
     @Get('events')
     async getEvents(@Req() req: Request) {
@@ -55,4 +52,40 @@ export class SiteController {
         return Mustache.render(`${this.EVENT_LINE}`, event).trim();
 
     }
+
+    @Post('/events/:id/participants')
+    async eventAddParticipant(@Req() { cookies }: Request, @Param("id") id: MeetingId, @Body() body: AddParticipantDto) {
+        const result = await this.writeModel.addParticipant(id, body, cookies['userId'])
+        if (result.errors.length) throw new BadRequestException(result.errors)
+
+        const event = EventDto.from(result.events);
+        return Mustache.render(`${this.EVENT_LINE}`, event).trim();
+    }
+
+    @Delete('/events/:id/participants/:pid')
+    async eventRemoveParticipant(@Req() { cookies }: Request, @Param("id") id: MeetingId, @Param("pid") participantId: ActorId) {
+        const result = await this.writeModel.removeParticipant(id, participantId, cookies['userId'])
+        if (result.errors.length) throw new BadRequestException(result.errors)
+
+        const event = EventDto.from(result.events);
+        return Mustache.render(`${this.EVENT_LINE}`, event).trim();
+    }
+
+    @Get('/events/:id')
+    async getEvent(@Param('id') id: MeetingId) {
+        const event = await this.readModel.getById(id);
+        return Mustache.render(`${this.EVENT_LINE}`, event).trim();
+    }
+
+    @Get('/events/:id/participants/edit')
+    async getParticipantEdit(@Param('id') id: MeetingId) {
+        const event = await this.readModel.getById(id);
+        return Mustache.render(`<form hx-post="site/events/{{id}}/participants">
+        {{#participants}} {{userId}} <button hx-delete="site/events/{{id}}/participants/{{userId}}" hx-target="closest form">Remove</button> {{/participants}}
+        <input type="text" name="userId">
+        <button type="submit">Add Participant</button>
+        <button hx-get="site/events/{{id}}" hx-target="closest form">Cancel</button>
+        </form>`, event).trim();
+    }
+
 }

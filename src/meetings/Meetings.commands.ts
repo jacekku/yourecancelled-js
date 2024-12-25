@@ -17,14 +17,19 @@ export type AddParticipant = Command<
   }
 >;
 
+export type RemoveParticipant = Command<'RemoveParticipant', {
+  actorId: ActorId,
+  participantId: ActorId
+}>
+
 export type CancelAttendance = Command<
   'CancelAttendance',
   { actorId: ActorId; meetingId: MeetingId }
 >;
 
 export type ChangeMeetingData = Command<
-  'ChangeMeetingData', 
+  'ChangeMeetingData',
   { actorId: ActorId; meetingId: MeetingId; date: Date | undefined; name: string | undefined }
 >
 
-export type MeetingCommand = CreateMeeting | AddParticipant | CancelAttendance | ChangeMeetingData;
+export type MeetingCommand = CreateMeeting | AddParticipant | CancelAttendance | ChangeMeetingData | RemoveParticipant;

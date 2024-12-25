@@ -8,6 +8,7 @@ import {
   ChangeMeetingData,
   CreateMeeting,
   MeetingCommand,
+  RemoveParticipant,
 } from './Meetings.commands';
 
 export type MeetingResult = {
@@ -87,11 +88,12 @@ export class Meeting {
         return this.cancelAttendance(command);
       case 'ChangeMeetingData':
         return this.changeMeetingData(command);
+      case 'RemoveParticipant':
+        return this.removeParticipant(command);
       default:
         return this.result({});
     }
   }
-
   private cancelAttendance(command: CancelAttendance): MeetingResult {
     const actorId = command.data.actorId;
     const meetingId = this.id;
@@ -185,6 +187,16 @@ export class Meeting {
 
     return this.result({ events });
   }
+
+  removeParticipant({ data: { actorId, participantId } }: RemoveParticipant): MeetingResult {
+    const events: MeetingEvent[] = [
+      { type: 'ParticipantRemoved', data: { actorId, participantId, meetingId: this.id, timestamp: Date.now() } }
+    ]
+
+    this.apply(events);
+    return this.result({ events })
+  }
+
 
   private changeMeetingData(command: ChangeMeetingData): MeetingResult {
     const newName = command.data.name || this.name;

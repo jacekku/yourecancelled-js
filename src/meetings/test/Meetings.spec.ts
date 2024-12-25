@@ -1,6 +1,6 @@
 import { randomUUID, UUID } from 'crypto';
 import { Meeting, MeetingResult } from '../Meeting';
-import { MeetingDataChanged } from '../Meeting.events';
+import { MeetingDataChanged, ParticipantAdded, ParticipantRemoved } from '../Meeting.events';
 import { CreateMeeting } from '../Meetings.commands';
 
 function expectSuccess(result: MeetingResult) {
@@ -162,6 +162,7 @@ describe('Meetings', () => {
       expect(event.data.name).toBe('New Name');
       expect(event.data.date).not.toBeNull();
     });
+
     test('Meeting date', () => {
       const { actorId, meetingId } = getUUIDs();
       const meeting = Meeting.new.apply([
@@ -187,97 +188,132 @@ describe('Meetings', () => {
       expect(event.data.date).toBe(expectedDate)
       expect(event.data.name).not.toBeNull();
     });
+
   });
 
-  describe('Validation', () => {
-    test('Only creator can add Participants', () => {
-      const actorId = randomUUID();
-      const meetingId = randomUUID();
-      const meeting = Meeting.new.apply([
-        {
-          type: 'MeetingCreated',
-          data: {
-            actorId,
-            creatorId: actorId,
-            meetingId,
-            timestamp: Date.now(),
-          },
-        },
-      ]);
-
-      const result = meeting.handle({
-        type: 'AddParticipant',
-        data: { actorId: randomUUID(), meetingId, participantId: randomUUID() },
-      });
-
-      expectError(result);
-      expect(result.errors[0].type).toBe('ActorNotCreator');
-    });
-
-    test('Participant can only be added once', () => {
-      const { actorId, meetingId, participantId, timestamp } = getUUIDs();
-
-      const meeting = Meeting.new.apply([
-        {
-          type: 'MeetingCreated',
-          data: { actorId, creatorId: actorId, meetingId, timestamp },
-        },
-        {
-          type: 'ParticipantAdded',
-          data: { actorId, meetingId, participantId, timestamp },
-        },
-      ]);
+  describe("Participants", () => {
+    test("Participants can be added", () => {
+      const { actorId, meetingId, participantId } = getUUIDs();
+      const meeting = meetingFromUUIDS({ actorId, meetingId })
 
       const result = meeting.handle({
         type: 'AddParticipant',
         data: { actorId, meetingId, participantId },
       });
-
-      expectError(result);
+      expectSuccess(result);
+      const event = result.events.at(0) as ParticipantAdded;
+      expect(event.type).toBe('ParticipantAdded');
+      expect(event.data.participantId).toBe(participantId);
     });
 
-    test('After Meeting is Cancelled, Participants cannot be added', () => {
-      const { actorId, meetingId, timestamp } = getUUIDs();
-
-      const meeting = Meeting.new.apply([
-        {
-          type: 'MeetingCreated',
-          data: { actorId, creatorId: actorId, meetingId, timestamp },
-        },
-        { type: 'MeetingCancelled', data: { meetingId, timestamp } },
-      ]);
+    test("Participants can be removed", () => {
+      const { actorId, meetingId, participantId } = getUUIDs();
+      const meeting = meetingFromUUIDS({ actorId, meetingId })
 
       const result = meeting.handle({
         type: 'AddParticipant',
-        data: { actorId, meetingId, participantId: actorId },
-      });
+        data: { actorId, meetingId, participantId },
+      }).meeting
+        .handle({
+          type: 'RemoveParticipant',
+          data: { actorId, participantId }
+        });
+      expectSuccess(result);
+      const event = result.events.at(0) as ParticipantRemoved;
+      expect(event.type).toBe('ParticipantRemoved');
+      expect(event.data.participantId).toBe(participantId);
+    });
+  })
+})
 
-      expectError(result);
+describe('Validation', () => {
+  test('Only creator can add Participants', () => {
+    const actorId = randomUUID();
+    const meetingId = randomUUID();
+    const meeting = Meeting.new.apply([
+      {
+        type: 'MeetingCreated',
+        data: {
+          actorId,
+          creatorId: actorId,
+          meetingId,
+          timestamp: Date.now(),
+        },
+      },
+    ]);
+
+    const result = meeting.handle({
+      type: 'AddParticipant',
+      data: { actorId: randomUUID(), meetingId, participantId: randomUUID() },
     });
 
-    test('Participant cannot be empty', () => {
-      const { actorId, meetingId, timestamp } = getUUIDs();
+    expectError(result);
+    expect(result.errors[0].type).toBe('ActorNotCreator');
+  });
 
-      const meeting = meetingFromUUIDS({ actorId, meetingId, timestamp });
+  test('Participant can only be added once', () => {
+    const { actorId, meetingId, participantId, timestamp } = getUUIDs();
 
-      expectError(
-        meeting.handle({
-          type: 'AddParticipant',
-          data: { actorId, meetingId, participantId: null },
-        }),
-      );
-      expectError(
-        meeting.handle({
-          type: 'AddParticipant',
-          data: { actorId, meetingId, participantId: undefined },
-        }),
-      );
-      expectError(
-        meeting.handle({
-          type: 'AddParticipant',
-          data: { actorId, meetingId, participantId: '' },
-        }),
-      );
+    const meeting = Meeting.new.apply([
+      {
+        type: 'MeetingCreated',
+        data: { actorId, creatorId: actorId, meetingId, timestamp },
+      },
+      {
+        type: 'ParticipantAdded',
+        data: { actorId, meetingId, participantId, timestamp },
+      },
+    ]);
+
+    const result = meeting.handle({
+      type: 'AddParticipant',
+      data: { actorId, meetingId, participantId },
     });
+
+    expectError(result);
+  });
+
+  test('After Meeting is Cancelled, Participants cannot be added', () => {
+    const { actorId, meetingId, timestamp } = getUUIDs();
+
+    const meeting = Meeting.new.apply([
+      {
+        type: 'MeetingCreated',
+        data: { actorId, creatorId: actorId, meetingId, timestamp },
+      },
+      { type: 'MeetingCancelled', data: { meetingId, timestamp } },
+    ]);
+
+    const result = meeting.handle({
+      type: 'AddParticipant',
+      data: { actorId, meetingId, participantId: actorId },
+    });
+
+    expectError(result);
+  });
+
+  test('ParticipantId cannot be empty', () => {
+    const { actorId, meetingId, timestamp } = getUUIDs();
+
+    const meeting = meetingFromUUIDS({ actorId, meetingId, timestamp });
+
+    expectError(
+      meeting.handle({
+        type: 'AddParticipant',
+        data: { actorId, meetingId, participantId: null },
+      }),
+    );
+    expectError(
+      meeting.handle({
+        type: 'AddParticipant',
+        data: { actorId, meetingId, participantId: undefined },
+      }),
+    );
+    expectError(
+      meeting.handle({
+        type: 'AddParticipant',
+        data: { actorId, meetingId, participantId: '' },
+      }),
+    );
   });
 });

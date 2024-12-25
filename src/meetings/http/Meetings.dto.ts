@@ -2,6 +2,7 @@ import { IsDateString, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
 import { ApiProperty } from '@nestjs/swagger';
+import { stat } from 'fs';
 
 export enum ParticipantStatusDto {
   ATTENDING = 'ATTENDING',
@@ -84,6 +85,9 @@ export class EventDto {
         return state;
       case 'ParticipantAdded':
         state.participants.push(ParticipantDto.from(data.participantId));
+        return state;
+      case 'ParticipantRemoved':
+        state.participants = state.participants.filter(p => p.userId != data.participantId)
         return state;
       case 'AttendanceCancelled':
         return state;

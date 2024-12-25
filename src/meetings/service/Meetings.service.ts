@@ -8,6 +8,7 @@ import { MeetingReadModel } from './Meetings.readmodel';
 @Injectable()
 export class MeetingsService {
 
+
   constructor(
     private readonly eventStore: PostgresEventStore,
     private readonly readModel: MeetingReadModel,
@@ -76,6 +77,23 @@ export class MeetingsService {
 
     result.events = [...events, ...result.events];
     return result;
+  }
+
+  async removeParticipant(id: MeetingId, participantId: ActorId, actorId: ActorId) {
+    const events = (await this.eventStore.readStream<MeetingEvent>(id)).events;
+    const meeting = Meeting.new.apply(events);
+
+    const result = meeting.handle({ type: 'RemoveParticipant', data: { actorId, participantId } })
+    if (!result.errors.length) {
+      await this.eventStore.appendToStream(
+        result.events.at(0).data.meetingId,
+        result.events,
+      );
+
+      this.readModel.processEvents(result.events);
+    }
+    result.events = [...events, ...result.events]
+    return result
   }
 
   public async modifyEvent(meetingId: MeetingId, body: ChangeEventDataDto, actorId: ActorId) {
