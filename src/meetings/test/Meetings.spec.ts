@@ -223,6 +223,28 @@ describe('Meetings', () => {
       expect(event.type).toBe('ParticipantRemoved');
       expect(event.data.participantId).toBe(participantId);
     });
+
+    test("Participants can be added after being removed", () => {
+      const { actorId, meetingId, participantId } = getUUIDs();
+      const meeting = meetingFromUUIDS({ actorId, meetingId })
+
+      const result = meeting.handle({
+        type: 'AddParticipant',
+        data: { actorId, meetingId, participantId },
+      }).meeting
+        .handle({
+          type: 'RemoveParticipant',
+          data: { actorId, participantId }
+        }).meeting
+        .handle({
+          type: 'AddParticipant',
+          data: { actorId, participantId, meetingId }
+        });
+      expectSuccess(result);
+      const event = result.events.at(0) as ParticipantAdded;
+      expect(event.type).toBe('ParticipantAdded');
+      expect(event.data.participantId).toBe(participantId);
+    });
   })
 })
 

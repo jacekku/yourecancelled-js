@@ -69,8 +69,8 @@ export class Meeting {
   protected id: MeetingId;
   protected status: MeetingStatus;
 
-  cancelledParticipants = [];
-  participants = [];
+  cancelledParticipants: ActorId[] = [];
+  participants: ActorId[] = [];
   name: string;
   date: Date;
 
@@ -243,6 +243,11 @@ export class Meeting {
       case 'MeetingDataChanged': {
         this.name = event.data.name;
         this.date = event.data.date;
+        return this;
+      }
+      case 'ParticipantRemoved': {
+        this.participants = this.participants.filter(p => p != event.data.participantId)
+        return this;
       }
       default:
         return this;
