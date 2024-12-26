@@ -5,8 +5,11 @@ import { ActorId, MeetingId } from "../meetings/Meeting";
 import { MeetingReadModel } from "../meetings/service/Meetings.readmodel";
 import { MeetingsService } from "../meetings/service/Meetings.service";
 import { AddParticipantDto, EventDto } from "../meetings/http/Meetings.dto";
+import { RestrictedTo } from "src/auth/RestrictedTo.decorator";
+import { User } from "src/auth/User.decorator";
 
 @Controller("/site")
+@RestrictedTo(['User'])
 export class SiteController {
 
     constructor(private readonly readModel: MeetingReadModel, private readonly writeModel: MeetingsService) { }
@@ -17,8 +20,7 @@ export class SiteController {
      </li>`;
 
     @Get('events')
-    async getEvents(@Req() req: Request) {
-        const userId = req.cookies['userId'];
+    async getEvents(@User('id') userId: ActorId) {
         const result = await this.readModel.getListFor(userId);
         return Mustache.render(`{{#.}}${this.EVENT_LINE}{{/.}}`, result).trim()
     }
@@ -45,8 +47,8 @@ export class SiteController {
     }
 
     @Put("/events/:id/edit")
-    async eventEditPut(@Req() { cookies }: Request, @Param("id") id: MeetingId, @Body() body: any) {
-        const result = await this.writeModel.modifyEvent(id, body, cookies['userId'])
+    async eventEditPut(@User('id') user: ActorId, @Param("id") id: MeetingId, @Body() body: any) {
+        const result = await this.writeModel.modifyEvent(id, body, user)
         if (result.errors.length) throw new BadRequestException(result.errors)
         const event = EventDto.from(result.events);
         return Mustache.render(`${this.EVENT_LINE}`, event).trim();
@@ -54,18 +56,18 @@ export class SiteController {
     }
 
     @Post('/events/:id/participants')
-    async eventAddParticipant(@Req() { cookies }: Request, @Param("id") id: MeetingId, @Body() body: AddParticipantDto) {
-        const result = await this.writeModel.addParticipant(id, body, cookies['userId'])
-        if (result.errors.length) throw new BadRequestException(result.errors)
+    async eventAddParticipant(@User('id') userId: ActorId, @Param("id") id: MeetingId, @Body() body: AddParticipantDto) {
+        const result = await this.writeModel.addParticipant(id, body, userId);
+        if (result.errors.length) throw new BadRequestException(result.errors);
 
         const event = EventDto.from(result.events);
         return Mustache.render(`${this.EVENT_LINE}`, event).trim();
     }
 
     @Delete('/events/:id/participants/:pid')
-    async eventRemoveParticipant(@Req() { cookies }: Request, @Param("id") id: MeetingId, @Param("pid") participantId: ActorId) {
-        const result = await this.writeModel.removeParticipant(id, participantId, cookies['userId'])
-        if (result.errors.length) throw new BadRequestException(result.errors)
+    async eventRemoveParticipant(@User('id') userId: ActorId, @Param("id") id: MeetingId, @Param("pid") participantId: ActorId) {
+        const result = await this.writeModel.removeParticipant(id, participantId, userId);
+        if (result.errors.length) throw new BadRequestException(result.errors);
 
         const event = EventDto.from(result.events);
         return Mustache.render(`${this.EVENT_LINE}`, event).trim();

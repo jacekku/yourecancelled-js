@@ -6,6 +6,7 @@ import { UsersModule } from './users/Users.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { SiteModule } from './site/site.module';
+import { AuthModule } from './auth/Auth.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { SiteModule } from './site/site.module';
     EventStoreModule,
     MeetingsModule,
     UsersModule,
-    SiteModule
+    SiteModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],

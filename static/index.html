@@ -5,17 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="htmx.min.js"></script>
+    <script>
+        htmx.on("htmx:configRequest", (e) => {
+            e.detail.headers["Authorization"] = localStorage.getItem('user')
+        })
+    </script>
+
     <title>Document</title>
 </head>
 
 <body>
-
+    <div>
+        <input type="email" name="email">
+        <input type="password" name="password">
+        <button id="firebase_login">Submit</button>
+    </div>
     <form hx-post="site/login">
         <input name="username" type="text">
         <button type="submit">login</button>
     </form>
     <button hx-get="site/events" hx-target="#event-list">Get Events</button>
     <ul id="event-list"></ul>
+    <script type="module" src="firebase.mjs" defer async></script>
+    <script type="module" defer async>
+        import { signInButton, getUserToken } from './firebase.mjs'
+        firebase_login.addEventListener('click', signInButton)
+
+        console.log(getUserToken())
+    </script>
+
 </body>
 
 </html>
