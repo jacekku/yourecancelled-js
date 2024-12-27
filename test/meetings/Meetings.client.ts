@@ -1,10 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { ChangeEventDataDto, CreateEventDto } from '../../src/meetings/http/Meetings.dto';
+import {
+  ChangeEventDataDto,
+  CreateEventDto,
+} from '../../src/meetings/http/Meetings.dto';
 import { ActorId, MeetingId } from '../../src/meetings/Meeting';
 
 export class MeetingsClient {
-  constructor(private readonly app: INestApplication) { }
+  constructor(private readonly app: INestApplication) {}
 
   public createEvent(body: CreateEventDto) {
     return request(this.app.getHttpServer()).post('/events').send(body);
@@ -26,7 +29,6 @@ export class MeetingsClient {
   public modifyEvent(id: MeetingId, body: ChangeEventDataDto, userId: ActorId) {
     return request(this.app.getHttpServer())
       .put(`/events/${id}?userId=${userId}`)
-      .send(body)
+      .send(body);
   }
-
 }

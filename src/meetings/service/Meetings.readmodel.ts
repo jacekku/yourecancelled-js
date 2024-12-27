@@ -13,9 +13,12 @@ export class MeetingReadModel {
     this.events = new Map();
     this.userEvents = new Map();
 
-    setTimeout((() => {
-      this.reconstruct();
-    }).bind(this), 10)
+    setTimeout(
+      (() => {
+        this.reconstruct();
+      }).bind(this),
+      10,
+    );
   }
 
   private async reconstruct() {

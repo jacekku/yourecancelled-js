@@ -9,14 +9,14 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
-    .setTitle('You\'re Cancelled API')
-    .setDescription('You\'re Cancelled API description')
+    .setTitle("You're Cancelled API")
+    .setDescription("You're Cancelled API description")
     .setVersion('1.0')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
-  app.use(cookieParser("sec"));
+  app.use(cookieParser('sec'));
   await app.listen(3000);
 }
 bootstrap();

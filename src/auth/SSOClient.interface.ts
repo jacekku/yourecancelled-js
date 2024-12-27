@@ -1,5 +1,5 @@
-import { AuthUser } from "./Auth.model";
+import { AuthUser } from './Auth.model';
 
 export abstract class SSOClient {
-    abstract authenticate(token: string): Promise<AuthUser>;
+  abstract authenticate(token: string): Promise<AuthUser>;
 }

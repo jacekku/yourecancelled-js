@@ -188,15 +188,24 @@ export class Meeting {
     return this.result({ events });
   }
 
-  removeParticipant({ data: { actorId, participantId } }: RemoveParticipant): MeetingResult {
+  removeParticipant({
+    data: { actorId, participantId },
+  }: RemoveParticipant): MeetingResult {
     const events: MeetingEvent[] = [
-      { type: 'ParticipantRemoved', data: { actorId, participantId, meetingId: this.id, timestamp: Date.now() } }
-    ]
+      {
+        type: 'ParticipantRemoved',
+        data: {
+          actorId,
+          participantId,
+          meetingId: this.id,
+          timestamp: Date.now(),
+        },
+      },
+    ];
 
     this.apply(events);
-    return this.result({ events })
+    return this.result({ events });
   }
-
 
   private changeMeetingData(command: ChangeMeetingData): MeetingResult {
     const newName = command.data.name || this.name;
@@ -246,7 +255,9 @@ export class Meeting {
         return this;
       }
       case 'ParticipantRemoved': {
-        this.participants = this.participants.filter(p => p != event.data.participantId)
+        this.participants = this.participants.filter(
+          (p) => p != event.data.participantId,
+        );
         return this;
       }
       default:

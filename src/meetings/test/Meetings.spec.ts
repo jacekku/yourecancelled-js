@@ -1,6 +1,10 @@
 import { randomUUID, UUID } from 'crypto';
 import { Meeting, MeetingResult } from '../Meeting';
-import { MeetingDataChanged, ParticipantAdded, ParticipantRemoved } from '../Meeting.events';
+import {
+  MeetingDataChanged,
+  ParticipantAdded,
+  ParticipantRemoved,
+} from '../Meeting.events';
 import { CreateMeeting } from '../Meetings.commands';
 
 function expectSuccess(result: MeetingResult) {
@@ -177,7 +181,7 @@ describe('Meetings', () => {
         },
       ]);
 
-      const expectedDate = new Date()
+      const expectedDate = new Date();
       const result = meeting.handle({
         type: 'ChangeMeetingData',
         data: { actorId, meetingId, name: null, date: expectedDate },
@@ -185,16 +189,15 @@ describe('Meetings', () => {
       expectSuccess(result);
       const event = result.events.at(0) as MeetingDataChanged;
       expect(event.type).toBe('MeetingDataChanged');
-      expect(event.data.date).toBe(expectedDate)
+      expect(event.data.date).toBe(expectedDate);
       expect(event.data.name).not.toBeNull();
     });
-
   });
 
-  describe("Participants", () => {
-    test("Participants can be added", () => {
+  describe('Participants', () => {
+    test('Participants can be added', () => {
       const { actorId, meetingId, participantId } = getUUIDs();
-      const meeting = meetingFromUUIDS({ actorId, meetingId })
+      const meeting = meetingFromUUIDS({ actorId, meetingId });
 
       const result = meeting.handle({
         type: 'AddParticipant',
@@ -206,17 +209,18 @@ describe('Meetings', () => {
       expect(event.data.participantId).toBe(participantId);
     });
 
-    test("Participants can be removed", () => {
+    test('Participants can be removed', () => {
       const { actorId, meetingId, participantId } = getUUIDs();
-      const meeting = meetingFromUUIDS({ actorId, meetingId })
+      const meeting = meetingFromUUIDS({ actorId, meetingId });
 
-      const result = meeting.handle({
-        type: 'AddParticipant',
-        data: { actorId, meetingId, participantId },
-      }).meeting
+      const result = meeting
         .handle({
+          type: 'AddParticipant',
+          data: { actorId, meetingId, participantId },
+        })
+        .meeting.handle({
           type: 'RemoveParticipant',
-          data: { actorId, participantId }
+          data: { actorId, participantId },
         });
       expectSuccess(result);
       const event = result.events.at(0) as ParticipantRemoved;
@@ -224,29 +228,30 @@ describe('Meetings', () => {
       expect(event.data.participantId).toBe(participantId);
     });
 
-    test("Participants can be added after being removed", () => {
+    test('Participants can be added after being removed', () => {
       const { actorId, meetingId, participantId } = getUUIDs();
-      const meeting = meetingFromUUIDS({ actorId, meetingId })
+      const meeting = meetingFromUUIDS({ actorId, meetingId });
 
-      const result = meeting.handle({
-        type: 'AddParticipant',
-        data: { actorId, meetingId, participantId },
-      }).meeting
-        .handle({
-          type: 'RemoveParticipant',
-          data: { actorId, participantId }
-        }).meeting
+      const result = meeting
         .handle({
           type: 'AddParticipant',
-          data: { actorId, participantId, meetingId }
+          data: { actorId, meetingId, participantId },
+        })
+        .meeting.handle({
+          type: 'RemoveParticipant',
+          data: { actorId, participantId },
+        })
+        .meeting.handle({
+          type: 'AddParticipant',
+          data: { actorId, participantId, meetingId },
         });
       expectSuccess(result);
       const event = result.events.at(0) as ParticipantAdded;
       expect(event.type).toBe('ParticipantAdded');
       expect(event.data.participantId).toBe(participantId);
     });
-  })
-})
+  });
+});
 
 describe('Validation', () => {
   test('Only creator can add Participants', () => {

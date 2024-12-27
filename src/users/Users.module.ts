@@ -6,6 +6,6 @@ import { UserService } from './User.service';
   imports: [EventStoreModule],
   controllers: [],
   providers: [UserService],
-  exports: [UserService]
+  exports: [UserService],
 })
-export class UsersModule { }
+export class UsersModule {}

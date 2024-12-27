@@ -26,6 +26,7 @@ describe('Events (e2e)', () => {
     process.env.DB_USERNAME = postgresContainer.getUsername();
     process.env.DB_PASSWORD = postgresContainer.getPassword();
     process.env.DB_DATABASE = postgresContainer.getDatabase();
+    process.env.GUARDS = 'PARAM';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [EventStoreModule, MeetingsModule, AppModule],
@@ -95,34 +96,41 @@ describe('Events (e2e)', () => {
   });
 
   it('Change meeting data', async () => {
-
     const startingDate = new Date();
-    const startingName = 'starting'
-    const event = (await client.createEvent({
-      datetime: startingDate,
-      userId: '1',
-      name: startingName
-    })).body;
+    const startingName = 'starting';
+    const event = (
+      await client.createEvent({
+        datetime: startingDate,
+        userId: '1',
+        name: startingName,
+      })
+    ).body;
 
-    const name = "new"
-    const datetime = new Date("2020-01-01")
+    const name = 'new';
+    const datetime = new Date('2020-01-01');
 
-    let result = (await client.modifyEvent(event.id, {}, '1')).body
-    expect(result.name).toBe(startingName)
-    expect(result.date).toBe(startingDate.toISOString())
+    let result = (await client.modifyEvent(event.id, {}, '1')).body;
+    expect(result.name).toBe(startingName);
+    expect(result.date).toBe(startingDate.toISOString());
 
-    result = (await client.modifyEvent(event.id, { name }, '1')).body
-    expect(result.name).toBe(name)
-    expect(result.date).toBe(startingDate.toISOString())
+    result = (await client.modifyEvent(event.id, { name }, '1')).body;
+    expect(result.name).toBe(name);
+    expect(result.date).toBe(startingDate.toISOString());
 
-    result = (await client.modifyEvent(event.id, { datetime }, '1')).body
-    expect(result.name).toBe(name)
-    expect(result.date).toBe(datetime.toISOString())
+    result = (await client.modifyEvent(event.id, { datetime }, '1')).body;
+    expect(result.name).toBe(name);
+    expect(result.date).toBe(datetime.toISOString());
 
-    const newDateTime = new Date('2023-01-01')
-    const newName = 'newName'
-    result = (await client.modifyEvent(event.id, { datetime: newDateTime, name: newName }, '1')).body
-    expect(result.name).toBe(newName)
-    expect(result.date).toBe(newDateTime.toISOString())
-  })
+    const newDateTime = new Date('2023-01-01');
+    const newName = 'newName';
+    result = (
+      await client.modifyEvent(
+        event.id,
+        { datetime: newDateTime, name: newName },
+        '1',
+      )
+    ).body;
+    expect(result.name).toBe(newName);
+    expect(result.date).toBe(newDateTime.toISOString());
+  });
 });

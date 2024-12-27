@@ -1,11 +1,11 @@
-import { Module } from "@nestjs/common";
-import { SiteController } from "./site.controller";
-import { MeetingsModule } from "../meetings/Meetings.module";
-import { AuthModule } from "src/auth/Auth.module";
-import { UsersModule } from "src/users/Users.module";
+import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/Auth.module';
+import { MeetingsModule } from '../meetings/Meetings.module';
+import { UsersModule } from '../users/Users.module';
+import { SiteController } from './site.controller';
 
 @Module({
-    imports: [MeetingsModule, UsersModule, AuthModule],
-    controllers: [SiteController]
+  imports: [MeetingsModule, UsersModule, AuthModule],
+  controllers: [SiteController],
 })
-export class SiteModule { }
+export class SiteModule {}

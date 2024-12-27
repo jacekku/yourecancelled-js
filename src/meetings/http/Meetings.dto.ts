@@ -47,11 +47,11 @@ export class ParticipantDto {
 export class ChangeEventDataDto {
   @ApiProperty()
   @IsDateString()
-  datetime?: Date
+  datetime?: Date;
 
   @ApiProperty()
   @IsString()
-  name?: string
+  name?: string;
 }
 
 export class EventDto {
@@ -87,7 +87,9 @@ export class EventDto {
         state.participants.push(ParticipantDto.from(data.participantId));
         return state;
       case 'ParticipantRemoved':
-        state.participants = state.participants.filter(p => p.userId != data.participantId)
+        state.participants = state.participants.filter(
+          (p) => p.userId != data.participantId,
+        );
         return state;
       case 'AttendanceCancelled':
         return state;

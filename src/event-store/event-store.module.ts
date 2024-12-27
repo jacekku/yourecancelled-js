@@ -25,4 +25,4 @@ import { databaseProvider } from './postgresDatabase.provider';
   ],
   exports: [PostgresEventStore],
 })
-export class EventStoreModule { }
+export class EventStoreModule {}
