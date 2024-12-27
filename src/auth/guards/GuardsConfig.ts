@@ -5,6 +5,7 @@ export enum GUARD_TYPE { "TOKEN" = "TOKEN", COOKIES = "COOKIES", "PARAM" = "PARA
 
 @Injectable()
 export class GuardsConfig {
+    private readonly logger = new Logger(GuardsConfig.name);
     private activeGuards: GUARD_TYPE[];
 
     constructor(config: ConfigService) {
@@ -27,9 +28,9 @@ export class GuardsConfig {
             newGuards.includes(GUARD_TYPE.PARAM) ? GUARD_TYPE.PARAM : null,
         ].filter(Boolean);
         if (!this.activeGuards.length) {
-            console.log("SETTING DEFAULT GUARD TYPE")
+            this.logger.log("SETTING DEFAULT GUARD TYPE")
             this.activeGuards = [GUARD_TYPE.TOKEN]
         }
-        console.log('ACTIVE GUARDS: ' + this.activeGuards.join(','))
+        this.logger.log('ACTIVE GUARDS: ' + this.activeGuards.join(','))
     }
 }
