@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { UserService } from '../../users/User.service';
+import { AuthUserService } from '../AuthUser.service';
 import { GUARD_TYPE, GuardsConfig } from './GuardsConfig';
 
 @Injectable()
 export class CookieValidationGuard implements CanActivate {
   constructor(
-    private readonly userService: UserService,
+    private readonly userService: AuthUserService,
     private readonly guardConfig: GuardsConfig,
   ) {}
 

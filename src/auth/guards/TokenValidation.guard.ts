@@ -4,21 +4,20 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from '../../users/User.service';
+import { AuthUserService } from '../AuthUser.service';
 import { SSOClient } from '../SSOClient.interface';
 import { GUARD_TYPE, GuardsConfig } from './GuardsConfig';
 
 @Injectable()
 export class TokenValidationGuard implements CanActivate {
   constructor(
-    private readonly userService: UserService,
+    private readonly userService: AuthUserService,
     private readonly ssoClient: SSOClient,
     private readonly guardConfig: GuardsConfig,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (!this.guardConfig.guardIsActive(GUARD_TYPE.TOKEN)) return true;
-
     const request = context.switchToHttp().getRequest();
 
     const token = this.pickTokenFrom(request);
@@ -36,7 +35,6 @@ export class TokenValidationGuard implements CanActivate {
     if (!header) {
       throw new UnauthorizedException('Unauthorized');
     }
-    1;
     const token = Array.isArray(header) ? header[0] : header;
     return token.replace(/^(Bearer |Bearer)/, '');
   }
