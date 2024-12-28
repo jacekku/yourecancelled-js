@@ -21,6 +21,7 @@ export class PostgresEventStore implements EventStore {
   ) {}
 
   async readAllEvents<EventType extends Event>(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options?: ReadStreamOptions<bigint>,
   ): Promise<{ events: EventType[] }> {
     const res = await this.ds
@@ -40,7 +41,9 @@ export class PostgresEventStore implements EventStore {
   }
 
   aggregateStream<State, EventType extends Event>(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _streamName: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options: AggregateStreamOptions<State, EventType, bigint>,
   ): Promise<AggregateStreamResult<State, bigint>> {
     throw new Error('Method not implemented.');
@@ -48,6 +51,7 @@ export class PostgresEventStore implements EventStore {
 
   async readStream<EventType extends Event>(
     streamName: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options?: ReadStreamOptions<bigint>,
   ): Promise<{ currentStreamVersion: bigint; events: EventType[] }> {
     const res = await this.ds
@@ -92,7 +96,7 @@ export class PostgresEventStore implements EventStore {
 
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
-      const res = await this.ds
+      await this.ds
         .createQueryBuilder(EventEntity, 'event')
         .insert()
         .values({

@@ -1,8 +1,7 @@
-import { IsDateString, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
-import { ApiProperty } from '@nestjs/swagger';
-import { stat } from 'fs';
 
 export enum ParticipantStatusDto {
   ATTENDING = 'ATTENDING',

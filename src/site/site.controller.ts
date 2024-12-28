@@ -7,10 +7,9 @@ import {
   Param,
   Post,
   Put,
-  Req,
   Res,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as Mustache from 'mustache';
 import { RestrictedTo } from '../auth/RestrictedTo.decorator';
 import { User } from '../auth/User.decorator';
@@ -52,7 +51,7 @@ export class SiteController {
   }
 
   @Get('/events/:id/edit')
-  async eventEdit(@Req() { cookies }: Request, @Param('id') id: MeetingId) {
+  async eventEdit(@Param('id') id: MeetingId) {
     const event = await this.readModel.getById(id);
     return Mustache.render(
       `<form hx-put="site/events/${id}/edit" style="display: flex;">
@@ -61,8 +60,7 @@ export class SiteController {
             <input type="text" value="{{name}}" name="name"></input> |
 {{status}} | {{id}}</li>
 <button type="submit">Submit</button>
-</form>
-            `,
+</form>`,
       event,
     ).trim();
   }
