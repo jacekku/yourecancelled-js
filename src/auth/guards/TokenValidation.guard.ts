@@ -22,7 +22,10 @@ export class TokenValidationGuard implements CanActivate {
 
     const token = this.pickTokenFrom(request);
     const user = await this.authorize(token);
-    const profile = this.userService.getUser(user.id);
+
+    const profile = await this.userService.getUserByExternalId(user);
+
+    if (!profile) return false;
 
     request.user = profile;
 

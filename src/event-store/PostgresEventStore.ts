@@ -21,12 +21,14 @@ export class PostgresEventStore implements EventStore {
   ) {}
 
   async readAllEvents<EventType extends Event>(
+    module: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options?: ReadStreamOptions<bigint>,
   ): Promise<{ events: EventType[] }> {
     const res = await this.ds
       .createQueryBuilder(EventEntity, 'event')
       .orderBy('global_position')
+      .where(`metadata @> '{"module": "${module}"}'`)
       .getMany();
     return {
       events: res.map(

@@ -23,7 +23,8 @@ export class MeetingReadModel {
 
   private async reconstruct() {
     // change this for ReadModel in DB
-    const allEvents = await this.eventStore.readAllEvents<MeetingEvent>();
+    const allEvents =
+      await this.eventStore.readAllEvents<MeetingEvent>('Meetings');
     this.processEvents(allEvents.events);
   }
 
@@ -44,6 +45,7 @@ export class MeetingReadModel {
 
   public processEvents(events: MeetingEvent[]) {
     events.forEach((event) => {
+      if (event.metadata.module != 'Meetings') return;
       let eventDto = this.events.get(event.data.meetingId);
       if (!eventDto) {
         eventDto = EventDto.from([event]);

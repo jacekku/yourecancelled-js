@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
-import { AuthUserService } from './AuthUser.service';
+import { EventStoreModule } from '../event-store/event-store.module';
+import { AuthUserRepository, AuthUserService } from './AuthUser.service';
 import { SSOClient } from './SSOClient.interface';
+import { EventStoreAuthUserRepository } from './event-store-repository/EventStoreAuth.repository';
 import { FirebaseSSOClient } from './firebase/FirebaseSSO.client';
 import { CookieValidationGuard } from './guards/CookieValidation.guard';
 import { GuardsConfig } from './guards/GuardsConfig';
@@ -9,7 +10,7 @@ import { ParamValidationGuard } from './guards/ParamValidation.guard';
 import { TokenValidationGuard } from './guards/TokenValidation.guard';
 
 @Module({
-  imports: [PassportModule],
+  imports: [EventStoreModule],
   providers: [
     GuardsConfig,
     TokenValidationGuard,
@@ -17,6 +18,7 @@ import { TokenValidationGuard } from './guards/TokenValidation.guard';
     ParamValidationGuard,
     AuthUserService,
     { provide: SSOClient, useClass: FirebaseSSOClient },
+    { provide: AuthUserRepository, useClass: EventStoreAuthUserRepository },
   ],
   exports: [
     AuthUserService,

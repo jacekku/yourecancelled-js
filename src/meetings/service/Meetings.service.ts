@@ -113,12 +113,21 @@ export class MeetingsService {
     events: MeetingEvent[],
   ): Promise<MeetingResult> {
     if (!result.errors.length) {
+      const eventsMetadata: MeetingEvent[] = result.events.map(
+        (e) =>
+          ({
+            data: e.data,
+            type: e.type,
+            metadata: e.metadata,
+            __brand: e.__brand,
+          }) as MeetingEvent,
+      );
       await this.eventStore.appendToStream(
         result.events.at(0).data.meetingId,
-        result.events,
+        eventsMetadata,
       );
 
-      this.readModel.processEvents(result.events);
+      this.readModel.processEvents(eventsMetadata);
     }
 
     result.events = [...events, ...result.events];

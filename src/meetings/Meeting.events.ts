@@ -8,7 +8,8 @@ export type MeetingCreated = Event<
     creatorId: ActorId;
     meetingId: MeetingId;
     timestamp: number;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type ParticipantAdded = Event<
@@ -18,7 +19,8 @@ export type ParticipantAdded = Event<
     participantId: ActorId;
     meetingId: MeetingId;
     timestamp: number;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type AttendanceCancelled = Event<
@@ -27,7 +29,8 @@ export type AttendanceCancelled = Event<
     actorId: ActorId;
     meetingId: MeetingId;
     timestamp: number;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type MeetingCancelled = Event<
@@ -35,7 +38,8 @@ export type MeetingCancelled = Event<
   {
     meetingId: MeetingId;
     timestamp: number;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type MeetingDataChanged = Event<
@@ -46,7 +50,8 @@ export type MeetingDataChanged = Event<
     timestamp: number;
     name?: string;
     date?: Date;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type ParticipantRemoved = Event<
@@ -56,7 +61,8 @@ export type ParticipantRemoved = Event<
     participantId: ActorId;
     meetingId: MeetingId;
     timestamp: number;
-  }
+  },
+  { module: 'Meetings' }
 >;
 
 export type MeetingEvent =

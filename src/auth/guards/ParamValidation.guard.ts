@@ -15,7 +15,7 @@ export class ParamValidationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const userId = request.query?.['userId'];
 
-    request.user = this.userService.getUser(userId);
+    request.user = this.userService.getUserByExternalId(userId);
     return true;
   }
 }
