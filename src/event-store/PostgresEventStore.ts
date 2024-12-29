@@ -109,7 +109,7 @@ export class PostgresEventStore implements EventStore {
 
           messageId: randomUUID(),
           timestamp: new Date(),
-          streamPosition: i + latest + 1,
+          streamPosition: i + latest,
         })
         .execute();
     }
