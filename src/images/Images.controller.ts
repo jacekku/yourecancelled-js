@@ -14,7 +14,7 @@ import * as sharp from 'sharp';
 import { RestrictedTo } from '../auth/RestrictedTo.decorator';
 import { User } from '../auth/User.decorator';
 import { ImagesRepository } from './Images.repository';
-import { S3Service } from './s3.service';
+import { S3Service } from './S3.service';
 
 @Controller('images')
 @RestrictedTo(['User'])

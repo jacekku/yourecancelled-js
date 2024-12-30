@@ -3,7 +3,7 @@ import { AuthModule } from '../auth/Auth.module';
 import { DatabaseModule } from '../common/database/Database.module';
 import { ImagesController } from './Images.controller';
 import { ImagesRepository } from './Images.repository';
-import { S3Service } from './s3.service';
+import { S3Service } from './S3.service';
 
 @Module({
   imports: [DatabaseModule, AuthModule],
