@@ -30,7 +30,6 @@ export class ImagesController {
     @UploadedFile() file: Express.Multer.File,
     @User('id') userId: UUID,
   ) {
-    console.log(file);
     const resizedImage = await this.resizeImage(file.buffer);
     const key = `${userId}-${randomUUID()}.jpg`;
     await this.imagesRepo.saveUserConnection(key, userId);
@@ -51,7 +50,7 @@ export class ImagesController {
   }
 
   async resizeImage(buffer: Buffer): Promise<Buffer> {
-    return sharp(buffer).resize(100, 100).toBuffer();
+    return sharp(buffer).toBuffer();
   }
 
   private async checkAuthorization(

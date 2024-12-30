@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
-import { ImageEntity } from './Images.repository';
+import { EventEntity } from '../../event-store/Event.entity';
+import { ImageEntity } from '../../images/Image.entity';
 
 export const databaseProvider = (config: ConfigService) =>
   new DataSource({
@@ -10,6 +11,6 @@ export const databaseProvider = (config: ConfigService) =>
     username: config.get('DB_USER') || 'eventstore',
     password: config.get('DB_PASSWORD'),
     database: config.get('DB_DB') || 'eventstore',
-    entities: [ImageEntity],
-    migrations: [__dirname + '/../**/migrations/*{.ts,.js}'],
+    entities: [EventEntity, ImageEntity],
+    migrations: [__dirname + '/../../**/migrations/*{.ts,.js}'],
   });

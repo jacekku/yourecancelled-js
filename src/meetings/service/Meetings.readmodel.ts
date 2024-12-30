@@ -33,9 +33,6 @@ export class MeetingReadModel {
   }
 
   public async getListFor(userId: ActorId): Promise<EventDto[]> {
-    console.log(this.userEvents);
-    console.log(userId);
-    console.log(this.userEvents.get(userId));
     return Array.from(this.userEvents.get(userId) || new Set());
   }
 
