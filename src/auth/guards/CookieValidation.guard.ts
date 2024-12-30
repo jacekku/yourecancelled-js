@@ -15,7 +15,10 @@ export class CookieValidationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const userId = request.cookies?.['userId'];
 
-    request.user = this.userService.getUserByExternalId(userId);
+    request.user = await this.userService.getUserByExternalId({
+      externalId: userId,
+      id: userId,
+    });
     return true;
   }
 }

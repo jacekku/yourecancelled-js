@@ -4,7 +4,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './auth/Auth.module';
 import { EventStoreModule } from './event-store/event-store.module';
-import { ImagesModule } from './images/Images.module';
 import { MeetingsModule } from './meetings/Meetings.module';
 import { SiteModule } from './site/site.module';
 import { UsersModule } from './users/Users.module';
@@ -18,7 +17,7 @@ import { UsersModule } from './users/Users.module';
     UsersModule,
     SiteModule,
     AuthModule,
-    ImagesModule,
+    // ImagesModule,
   ],
   controllers: [],
   providers: [],

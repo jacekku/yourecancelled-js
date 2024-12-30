@@ -5,6 +5,7 @@ import {
   StartedPostgreSqlContainer,
 } from '@testcontainers/postgresql';
 import { AppModule } from '../../src/app.module';
+import { AuthModule } from '../../src/auth/Auth.module';
 import { EventStoreModule } from '../../src/event-store/event-store.module';
 import { MeetingsModule } from '../../src/meetings/Meetings.module';
 import { EventDto } from '../../src/meetings/http/Meetings.dto';
@@ -29,7 +30,7 @@ describe('Events (e2e)', () => {
     process.env.GUARDS = 'PARAM';
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [EventStoreModule, MeetingsModule, AppModule],
+      imports: [EventStoreModule, MeetingsModule, AuthModule, AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -77,6 +78,7 @@ describe('Events (e2e)', () => {
     });
 
     const events = await client.getListForUser('1');
+
     expect(events.body).toHaveLength(1);
     expect(events.body.at(0).name).toBe('2');
   });

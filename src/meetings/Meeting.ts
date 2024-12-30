@@ -129,6 +129,7 @@ export class Meeting {
       {
         type: 'MeetingCreated',
         data: { actorId, creatorId: actorId, meetingId, timestamp: Date.now() },
+        metadata: { module: 'Meetings' },
       },
     ];
 
@@ -180,6 +181,7 @@ export class Meeting {
           meetingId: this.id,
           timestamp: Date.now(),
         },
+        metadata: { module: 'Meetings' },
       },
     ];
 
@@ -200,6 +202,7 @@ export class Meeting {
           meetingId: this.id,
           timestamp: Date.now(),
         },
+        metadata: { module: 'Meetings' },
       },
     ];
 
@@ -221,6 +224,7 @@ export class Meeting {
           actorId: command.data.actorId,
           meetingId: command.data.meetingId,
         },
+        metadata: { module: 'Meetings' },
       },
     ];
 
