@@ -7,11 +7,13 @@ import { MeetingsClient } from './Meetings.client';
 import { DataSource } from 'typeorm';
 import { setGuardTypes, setupPostgresDatabaseAndSetEnv, truncateDB } from '../Helper';
 import { GUARD_TYPE } from '../../src/auth/guards/GuardsConfig';
+import { AuthClient } from '../auth/Auth.client';
 
 describe('Events (e2e)', () => {
   let app: INestApplication;
   let postgresContainer: StartedPostgreSqlContainer;
   let client: MeetingsClient;
+  let auth: AuthClient;
   let database: DataSource;
 
   beforeAll(async () => {
@@ -27,6 +29,7 @@ describe('Events (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
     client = new MeetingsClient(app);
+    auth = new AuthClient(app);
     database = app.get<DataSource>(DataSource);
     truncateDB(database);
   });
@@ -37,8 +40,7 @@ describe('Events (e2e)', () => {
   });
 
   it('Create Event', async () => {
-    const { body: user } = await client.whoami('1')
-
+    const { body: user } = await auth.whoami('1');
 
     return client
       .createEvent({

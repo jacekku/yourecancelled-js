@@ -32,8 +32,4 @@ export class MeetingsClient {
       .send(body);
   }
 
-  public whoami(userId: ActorId) {
-    return request(this.app.getHttpServer())
-      .get(`/auth/whoami?userId=${userId}`);
-  }
 }

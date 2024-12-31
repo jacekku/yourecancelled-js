@@ -19,7 +19,6 @@ export class ParamValidationGuard implements CanActivate {
       externalId: userId,
       id: userId,
     });
-    // request.user.id = use // need to think about how to do it
     return true;
   }
 }

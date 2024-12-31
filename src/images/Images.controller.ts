@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UnauthorizedException,
   UploadedFile,
   UseInterceptors,
@@ -49,6 +50,16 @@ export class ImagesController {
     return { url };
   }
 
+  @Put(':key/access/:grantee')
+  async grantAccess(@Param('key') key: string, @Param('grantee') grantee: UUID, @User('id') ownerId: UUID) {
+    const isAuthorized = await this.checkAuthorization(key, ownerId);
+    if (!isAuthorized) {
+      throw new UnauthorizedException();
+    }
+
+    return this.imagesRepo.saveUserConnection(key, grantee);
+  }
+
   async resizeImage(buffer: Buffer): Promise<Buffer> {
     return sharp(buffer).toBuffer();
   }
@@ -57,7 +68,7 @@ export class ImagesController {
     key: string,
     userId: UUID,
   ): Promise<boolean> {
-    const found = this.imagesRepo.findKeyUserConnection(key, userId);
+    const found = await this.imagesRepo.findKeyUserConnection(key, userId);
     return !!found;
   }
 }

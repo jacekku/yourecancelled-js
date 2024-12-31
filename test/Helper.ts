@@ -2,6 +2,8 @@ import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { GUARD_TYPE } from "src/auth/guards/GuardsConfig";
 import { EventEntity } from "../src/event-store/Event.entity";
 import { DataSource } from "typeorm";
+import { ImageEntity } from "../src/images/Image.entity";
+import { promises } from "dns";
 
 export async function setupPostgresDatabaseAndSetEnv() {
     const postgresContainer = await new PostgreSqlContainer()
@@ -18,8 +20,10 @@ export async function setupPostgresDatabaseAndSetEnv() {
 }
 
 export async function truncateDB(database: DataSource) {
-    await database.createQueryBuilder(EventEntity, 'events').delete().execute();
-
+    await Promise.all([
+        database.createQueryBuilder(EventEntity, 'events').delete().execute(),
+        database.createQueryBuilder(ImageEntity, 'images').delete().execute(),
+    ])
 }
 
 
