@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ActorId, MeetingId } from '../Meeting';
 import { MeetingEvent } from '../Meeting.events';
 
@@ -16,9 +16,9 @@ export enum EventStatusDto {
 
 export class CreateEventDto {
   @IsString()
-  @IsNotEmpty()
-  @ApiProperty()
-  public userId: string;
+  @ApiProperty({ deprecated: true })
+  @IsOptional()
+  public userId?: string;
   @IsNotEmpty()
   @ApiProperty()
   public name: string;

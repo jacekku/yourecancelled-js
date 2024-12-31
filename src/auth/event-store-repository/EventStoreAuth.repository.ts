@@ -2,14 +2,14 @@ import { Event } from '@event-driven-io/emmett';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PostgresEventStore } from '../../event-store/PostgresEventStore';
-import { AuthExternalId, AuthUser, AuthUserId } from '../Auth.model';
+import { AuthUser } from '../Auth.model';
 import { AuthUserRepository } from '../AuthUser.service';
 
 type AuthUserCreatedEvent = Event<
   'AuthUserCreated',
   {
-    id: AuthUserId;
-    externalId: AuthExternalId;
+    id: string;
+    externalId: string;
   },
   { module: 'Auth' }
 >;
@@ -41,11 +41,11 @@ export class EventStoreAuthUserRepository implements AuthUserRepository {
     this.users.push(user);
   }
 
-  async getUserById(id: AuthUserId): Promise<AuthUser | undefined> {
+  async getUserById(id: string): Promise<AuthUser | undefined> {
     return this.users.find((user) => user.id === id);
   }
 
-  async getUserByExternalId(id: AuthExternalId): Promise<AuthUser | undefined> {
+  async getUserByExternalId(id: string): Promise<AuthUser | undefined> {
     return this.users.find((user) => user.externalId === id);
   }
 

@@ -26,7 +26,7 @@ export class MeetingsController {
   constructor(
     private readonly meetingsService: MeetingsService,
     private readonly meetingReadModel: MeetingReadModel,
-  ) {}
+  ) { }
 
   @Get()
   @ApiResponse({ status: 200, type: EventDto, isArray: true })
@@ -43,8 +43,8 @@ export class MeetingsController {
   @Post()
   @ApiResponse({ status: 200, type: EventDto })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  async createEvent(@Body() body: CreateEventDto): Promise<EventDto> {
-    const result = await this.meetingsService.createEvent(body);
+  async createEvent(@Body() body: CreateEventDto, @User('id') userId: ActorId): Promise<EventDto> {
+    const result = await this.meetingsService.createEvent(body, userId);
     return this.handleResult(result);
   }
 

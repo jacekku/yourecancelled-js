@@ -36,18 +36,21 @@ describe('Events (e2e)', () => {
     await app.close();
   });
 
-  it('Create Event', () => {
+  it('Create Event', async () => {
+    const { body: user } = await client.whoami('1')
+
+
     return client
       .createEvent({
         datetime: new Date('2022-09-01T20:20:20'),
         userId: '1',
         name: '2',
-      })
+      }, '1')
       .expect(201)
       .expect((req) => {
         const meeting = req.body as EventDto;
         expect(meeting.id).not.toBeNull();
-        expect(meeting.authorId).toBe('1');
+        expect(meeting.authorId).toBe(user.id);
         expect(meeting.name).toBe('2');
       });
   });
@@ -57,7 +60,7 @@ describe('Events (e2e)', () => {
       datetime: new Date('2022-09-01T20:20:20'),
       userId: '1',
       name: '2',
-    });
+    }, '1');
 
     const event = await client.getById(result.body.id);
     expect(event.body.id).toBe(result.body.id);
@@ -68,7 +71,7 @@ describe('Events (e2e)', () => {
       datetime: new Date('2022-09-01T20:20:20'),
       userId: '1',
       name: '2',
-    });
+    }, '1');
 
     const events = await client.getListForUser('1');
 
@@ -82,7 +85,7 @@ describe('Events (e2e)', () => {
         datetime: new Date('2022-09-01T20:20:20'),
         userId: '1',
         name: '2',
-      })
+      }, '1')
     ).body;
 
     const result = (await client.addParticipant(event.id, '2', '1')).body;
@@ -98,7 +101,7 @@ describe('Events (e2e)', () => {
         datetime: startingDate,
         userId: '1',
         name: startingName,
-      })
+      }, '1')
     ).body;
 
     const name = 'new';

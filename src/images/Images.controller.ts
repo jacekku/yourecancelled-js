@@ -22,7 +22,7 @@ export class ImagesController {
   constructor(
     private readonly s3Service: S3Service,
     private readonly imagesRepo: ImagesRepository,
-  ) {}
+  ) { }
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))

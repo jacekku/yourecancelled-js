@@ -1,11 +1,4 @@
 export class AuthUser {
-  id: AuthUserId;
-  externalId: AuthExternalId;
+  id: string;
+  externalId: string;
 }
-
-export type AuthUserId = Flavour<string, 'authUserId'>;
-export type AuthExternalId = Flavour<string, 'authExternalId'>;
-
-type Flavour<K, T> = K & {
-  readonly __brand?: T;
-};

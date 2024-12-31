@@ -14,14 +14,12 @@ export class MeetingsService {
   constructor(
     private readonly eventStore: PostgresEventStore,
     private readonly readModel: MeetingReadModel,
-  ) {}
+  ) { }
 
-  public async createEvent(body: CreateEventDto): Promise<MeetingResult> {
+  public async createEvent(body: CreateEventDto, actorId: ActorId): Promise<MeetingResult> {
     const result = Meeting.new.handle({
       type: 'CreateMeeting',
-      data: {
-        actorId: body.userId,
-      },
+      data: { actorId },
     });
     const nextResult = result.meeting.handle({
       type: 'ChangeMeetingData',
