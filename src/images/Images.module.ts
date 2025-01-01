@@ -10,14 +10,21 @@ import { ConfigService } from '@nestjs/config';
 @Module({
   imports: [DatabaseModule, AuthModule],
   controllers: [ImagesController],
-  providers: [ImagesRepository, S3Service, {
-    provide: S3Client, useFactory: (configService: ConfigService) => new S3Client({
-      region: configService.get('AWS_REGION'),
-      credentials: {
-        accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
-        secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
-      },
-    }), inject: [ConfigService]
-  }],
+  providers: [
+    ImagesRepository,
+    S3Service,
+    {
+      provide: S3Client,
+      useFactory: (configService: ConfigService) =>
+        new S3Client({
+          region: configService.get('AWS_REGION'),
+          credentials: {
+            accessKeyId: configService.get('AWS_ACCESS_KEY_ID'),
+            secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY'),
+          },
+        }),
+      inject: [ConfigService],
+    },
+  ],
 })
-export class ImagesModule { }
+export class ImagesModule {}

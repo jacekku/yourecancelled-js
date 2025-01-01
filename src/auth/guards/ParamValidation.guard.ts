@@ -7,7 +7,7 @@ export class ParamValidationGuard implements CanActivate {
   constructor(
     private readonly userService: AuthUserService,
     private readonly guardConfig: GuardsConfig,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (!this.guardConfig.guardIsActive(GUARD_TYPE.PARAM)) return true;

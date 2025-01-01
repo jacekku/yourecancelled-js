@@ -23,7 +23,7 @@ export class ImagesController {
   constructor(
     private readonly s3Service: S3Service,
     private readonly imagesRepo: ImagesRepository,
-  ) { }
+  ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
@@ -51,7 +51,11 @@ export class ImagesController {
   }
 
   @Put(':key/access/:grantee')
-  async grantAccess(@Param('key') key: string, @Param('grantee') grantee: UUID, @User('id') ownerId: UUID) {
+  async grantAccess(
+    @Param('key') key: string,
+    @Param('grantee') grantee: UUID,
+    @User('id') ownerId: UUID,
+  ) {
     const isAuthorized = await this.checkAuthorization(key, ownerId);
     if (!isAuthorized) {
       throw new UnauthorizedException();

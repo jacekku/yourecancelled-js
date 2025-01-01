@@ -9,7 +9,7 @@ export class ImagesRepository {
   constructor(
     @InjectDataSource()
     private readonly ds: DataSource,
-  ) { }
+  ) {}
 
   public async saveUserConnection(key: string, userId: UUID) {
     await this.ds
@@ -23,7 +23,7 @@ export class ImagesRepository {
     return this.ds
       .createQueryBuilder(ImageEntity, 'images')
       .select()
-      .where("key = :key AND user_id = :userId", { key, userId })
+      .where('key = :key AND user_id = :userId', { key, userId })
       .getOne();
   }
 }

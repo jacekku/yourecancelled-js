@@ -11,24 +11,24 @@ import { TokenValidationGuard } from './guards/TokenValidation.guard';
 import { AuthController } from './Auth.controller';
 
 @Module({
-    imports: [EventStoreModule],
-    controllers: [AuthController],
-    providers: [
-        GuardsConfig,
-        TokenValidationGuard,
-        CookieValidationGuard,
-        ParamValidationGuard,
-        AuthUserService,
-        { provide: SSOClient, useClass: FirebaseSSOClient },
-        { provide: AuthUserRepository, useClass: EventStoreAuthUserRepository },
-    ],
-    exports: [
-        AuthUserService,
-        GuardsConfig,
-        SSOClient,
-        TokenValidationGuard,
-        CookieValidationGuard,
-        ParamValidationGuard,
-    ],
+  imports: [EventStoreModule],
+  controllers: [AuthController],
+  providers: [
+    GuardsConfig,
+    TokenValidationGuard,
+    CookieValidationGuard,
+    ParamValidationGuard,
+    AuthUserService,
+    { provide: SSOClient, useClass: FirebaseSSOClient },
+    { provide: AuthUserRepository, useClass: EventStoreAuthUserRepository },
+  ],
+  exports: [
+    AuthUserService,
+    GuardsConfig,
+    SSOClient,
+    TokenValidationGuard,
+    CookieValidationGuard,
+    ParamValidationGuard,
+  ],
 })
-export class AuthModule { }
+export class AuthModule {}

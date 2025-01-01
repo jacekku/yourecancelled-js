@@ -1,11 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { StartedPostgreSqlContainer, } from '@testcontainers/postgresql';
+import { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { AppModule } from '../../src/app.module';
 import { EventDto } from '../../src/meetings/http/Meetings.dto';
 import { MeetingsClient } from './Meetings.client';
 import { DataSource } from 'typeorm';
-import { setGuardTypes, setupPostgresDatabaseAndSetEnv, truncateDB } from '../Helper';
+import {
+  setGuardTypes,
+  setupPostgresDatabaseAndSetEnv,
+  truncateDB,
+} from '../Helper';
 import { GUARD_TYPE } from '../../src/auth/guards/GuardsConfig';
 import { AuthClient } from '../auth/Auth.client';
 
@@ -43,11 +47,14 @@ describe('Events (e2e)', () => {
     const { body: user } = await auth.whoami('1');
 
     return client
-      .createEvent({
-        datetime: new Date('2022-09-01T20:20:20'),
-        userId: '1',
-        name: '2',
-      }, '1')
+      .createEvent(
+        {
+          datetime: new Date('2022-09-01T20:20:20'),
+          userId: '1',
+          name: '2',
+        },
+        '1',
+      )
       .expect(201)
       .expect((req) => {
         const meeting = req.body as EventDto;
@@ -58,22 +65,28 @@ describe('Events (e2e)', () => {
   });
 
   it('Get by id', async () => {
-    const result = await client.createEvent({
-      datetime: new Date('2022-09-01T20:20:20'),
-      userId: '1',
-      name: '2',
-    }, '1');
+    const result = await client.createEvent(
+      {
+        datetime: new Date('2022-09-01T20:20:20'),
+        userId: '1',
+        name: '2',
+      },
+      '1',
+    );
 
     const event = await client.getById(result.body.id);
     expect(event.body.id).toBe(result.body.id);
   });
 
   it('Get for user', async () => {
-    await client.createEvent({
-      datetime: new Date('2022-09-01T20:20:20'),
-      userId: '1',
-      name: '2',
-    }, '1');
+    await client.createEvent(
+      {
+        datetime: new Date('2022-09-01T20:20:20'),
+        userId: '1',
+        name: '2',
+      },
+      '1',
+    );
 
     const events = await client.getListForUser('1');
 
@@ -83,11 +96,14 @@ describe('Events (e2e)', () => {
 
   it('Add Participant', async () => {
     const event = (
-      await client.createEvent({
-        datetime: new Date('2022-09-01T20:20:20'),
-        userId: '1',
-        name: '2',
-      }, '1')
+      await client.createEvent(
+        {
+          datetime: new Date('2022-09-01T20:20:20'),
+          userId: '1',
+          name: '2',
+        },
+        '1',
+      )
     ).body;
 
     const result = (await client.addParticipant(event.id, '2', '1')).body;
@@ -99,11 +115,14 @@ describe('Events (e2e)', () => {
     const startingDate = new Date();
     const startingName = 'starting';
     const event = (
-      await client.createEvent({
-        datetime: startingDate,
-        userId: '1',
-        name: startingName,
-      }, '1')
+      await client.createEvent(
+        {
+          datetime: startingDate,
+          userId: '1',
+          name: startingName,
+        },
+        '1',
+      )
     ).body;
 
     const name = 'new';

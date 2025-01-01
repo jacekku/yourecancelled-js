@@ -9,8 +9,10 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class S3Service {
-
-  constructor(private configService: ConfigService, private readonly s3Client: S3Client) { }
+  constructor(
+    private configService: ConfigService,
+    private readonly s3Client: S3Client,
+  ) {}
 
   async uploadFile(file: Buffer, key: string): Promise<string> {
     const command = new PutObjectCommand({

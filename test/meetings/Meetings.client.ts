@@ -7,10 +7,12 @@ import {
 import { ActorId, MeetingId } from '../../src/meetings/Meeting';
 
 export class MeetingsClient {
-  constructor(private readonly app: INestApplication) { }
+  constructor(private readonly app: INestApplication) {}
 
   public createEvent(body: CreateEventDto, userId: ActorId) {
-    return request(this.app.getHttpServer()).post(`/events?userId=${userId}`).send(body);
+    return request(this.app.getHttpServer())
+      .post(`/events?userId=${userId}`)
+      .send(body);
   }
 
   public getById(id: string) {
@@ -31,5 +33,4 @@ export class MeetingsClient {
       .put(`/events/${id}?userId=${userId}`)
       .send(body);
   }
-
 }
